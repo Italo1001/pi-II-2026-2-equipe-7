@@ -4,7 +4,7 @@ Requisitos e Design -  2 pessoas (Vinicius, Larissa)
 
 Backend e Infraestrutura - 3 pessoas (Caliel, Juan, Pedro Lucas)
 
-Frontend  - 2 pessoas (ITALO, LUIZ, rykelme)
+Frontend  - 2 pessoas (Italo, Luiz, Rykelme)
 
 QA / Testes - 1 pessoa(Felipe Gabriel)
 
