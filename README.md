@@ -31,7 +31,7 @@ O projeto busca contribuir para a **democratização do acesso à informação j
 
 Desenvolver uma plataforma web capaz de transformar conceitos e termos jurídicos complexos em informações mais fáceis de compreender, proporcionando uma experiência simples e intuitiva para o usuário.
 
-### Objetivos específicos
+### Objetivos específicos ( sujestão da FPJ)
 
 * 🔎 Permitir a pesquisa de termos jurídicos;
 * 📖 Apresentar significados em linguagem simplificada;
@@ -49,7 +49,7 @@ Desenvolver uma plataforma web capaz de transformar conceitos e termos jurídico
 ---
 
 ## ✨ Funcionalidades
-
+( até o momento vamos trabalhar em cima desses topicos, já que foram solicitados pela FPJ)
 ### 👤 Para o usuário
 
 | Funcionalidade                  | Descrição                                             |
@@ -170,7 +170,7 @@ calma doutor, tá no processo ainda
 O banco de dados será responsável pelo armazenamento e gerenciamento das informações utilizadas pelo sistema.
 
 ### Principais dados
-
+(caso for surjindo algo, adicionamos aqui também)
 * 📚 Termos jurídicos;
 * 📖 Explicações;
 * 💡 Exemplos;
@@ -215,7 +215,7 @@ O banco de dados será responsável pelo armazenamento e gerenciamento das infor
 * 🧹 Código organizado e documentado;
 * 📈 Estrutura preparada para futuras expansões;
 * 📖 Conteúdo apresentado em linguagem clara;
-* 🔒 Mecanismos básicos contra acessos não autorizados.
+* 🔒 Mecanismos básicos contra acessos não autorizados. ( apenas pro adm modificar)
 
 ---
 
