@@ -329,9 +329,13 @@ vamos adicionando x com o tempo, atualizando
 | ------------ | -------- | --------- |
 | **[Italo]** | [Front-end] | [@italo1001] |
 | **[Luiz]** | [Front-end] | [@tmluizo] |
-| **[NOME 3]** | [Função] | [@github] |
-| **[NOME 4]** | [Função] | [@github] |
-| **[NOME 5]** | [Função] | [@github] |
+| **[Rykelme]** | [Front-end] | [@Ryck2005] |
+| **[Caliel]** | [Back-end] | [@caliel2] |
+| **[Pedro]** | [Back-end] | [@PedroMacl] |
+| **[Juan]** | [Back-end] | [@0juan1] |
+| **[Felipe]** | [Qa/teste] | [@felipeGabriel13] |
+| **[Vinicius]** | [Requisitos/Desing] | [@ViniciusAzvd22] |
+| **[Larissa]** | [Requisitos/Desing] | [coloque o seu depois aqui] |
 
 
 ---
