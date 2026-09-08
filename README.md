@@ -172,7 +172,7 @@ O banco de dados será responsável pelo armazenamento e gerenciamento das infor
 ### Principais dados
 (caso for surjindo algo, adicionamos aqui também)
 * 📚 Termos jurídicos;
-* 📖 Explicações;
+* 📖 Explicações (simples e jurídicas);
 * 💡 Exemplos;
 * 🏷️ Categorias;
 * 👤 Usuários administrativos.
