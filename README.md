@@ -24,10 +24,6 @@ A plataforma foi idealizada para pessoas que não possuem conhecimento técnico 
 
 ---
 
-## 🎯 Objetivo
-
-Desenvolver uma plataforma web capaz de transformar conceitos e termos jurídicos complexos em informações mais fáceis de compreender, proporcionando uma experiência simples e intuitiva para o usuário.
-
 ### Objetivos específicos ( sujestão da FPJ)
 
 * 🔎 Permitir a pesquisa de termos jurídicos;
