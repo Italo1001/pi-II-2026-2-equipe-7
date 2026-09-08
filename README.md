@@ -8,7 +8,6 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/status-em%20desenvolvimento-yellow" alt="Status">
-  <img src="https://img.shields.io/badge/metodologia-Ágil-blue" alt="Metodologia">
   <img src="https://img.shields.io/badge/gestão-Kanban-purple" alt="Kanban">
   <img src="https://img.shields.io/badge/GitHub-versionamento-black" alt="GitHub">
 </p>
