@@ -26,50 +26,50 @@ A plataforma foi idealizada para pessoas que não possuem conhecimento técnico 
 
 ### Objetivos específicos ( sujestão da FPJ)
 
-* 🔎 Permitir a pesquisa de termos jurídicos;
-* 📖 Apresentar significados em linguagem simplificada;
-* 💡 Disponibilizar exemplos de utilização;
-* 🏷️ Organizar os termos por categorias;
-* 🔐 Implementar autenticação para administradores;
-* ⚙️ Criar uma área administrativa;
-* ✏️ Permitir cadastro, edição e exclusão de termos;
-* 🗄️ Armazenar as informações em banco de dados;
-* 📱 Garantir responsividade em diferentes dispositivos;
-* 🧪 Realizar testes das funcionalidades;
-* 📋 Utilizar Sprints e Kanban para organização do desenvolvimento;
-* 🔄 Utilizar GitHub para versionamento e gerenciamento do projeto.
+*  Permitir a pesquisa de termos jurídicos;
+*  Apresentar significados em linguagem simplificada;
+*  Disponibilizar exemplos de utilização;
+*  Organizar os termos por categorias;
+*  Implementar autenticação para administradores;
+*  Criar uma área administrativa;
+*  Permitir cadastro, edição e exclusão de termos;
+*  Armazenar as informações em banco de dados;
+*  Garantir responsividade em diferentes dispositivos;
+*  Realizar testes das funcionalidades;
+*  Utilizar Sprints e Kanban para organização do desenvolvimento;
+*  Utilizar GitHub para versionamento e gerenciamento do projeto.
 
 ---
 
-## ✨ Funcionalidades
+##  Funcionalidades
 ( até o momento vamos trabalhar em cima desses topicos, já que foram solicitados pela FPJ)
-### 👤 Para o usuário
+###  Para o usuário
 
 | Funcionalidade                  | Descrição                                             |
 | ------------------------------- | ----------------------------------------------------- |
-| 🔎 **Pesquisa**                 | Permite pesquisar termos jurídicos                    |
-| 📖 **Significado simplificado** | Exibe explicações em linguagem acessível              |
-| 💡 **Exemplos**                 | Apresenta exemplos de utilização dos termos           |
-| 🏷️ **Categorias**              | Organiza os termos por categorias                     |
-| 🔍 **Filtros**                  | Permite filtrar termos por categoria                  |
-| 📚 **Lista de termos**          | Permite visualizar os termos cadastrados              |
-| ❌ **Termo não encontrado**      | Informa quando o termo pesquisado não está cadastrado |
-| ℹ️ **Sobre o projeto**          | Disponibiliza informações sobre o JurisFácil          |
+|  **Pesquisa**                 | Permite pesquisar termos jurídicos                    |
+|  **Significado simplificado** | Exibe explicações em linguagem acessível              |
+|  **Exemplos**                 | Apresenta exemplos de utilização dos termos           |
+|  **Categorias**              | Organiza os termos por categorias                     |
+|  **Filtros**                  | Permite filtrar termos por categoria                  |
+|  **Lista de termos**          | Permite visualizar os termos cadastrados              |
+|  **Termo não encontrado**      | Informa quando o termo pesquisado não está cadastrado |
+|  **Sobre o projeto**          | Disponibiliza informações sobre o JurisFácil          |
 
-### 🔐 Para administradores
+###  Para administradores
 
 | Funcionalidade               | Descrição                                |
 | ---------------------------- | ---------------------------------------- |
-| 🔑 **Login**                 | Acesso autenticado à área administrativa |
-| ➕ **Cadastrar termos**       | Adiciona novos termos jurídicos          |
-| ✏️ **Editar termos**         | Atualiza informações existentes          |
-| 🗑️ **Excluir termos**       | Remove termos cadastrados                |
-| 🏷️ **Gerenciar categorias** | Cria e gerencia categorias               |
-| 🔒 **Controle de acesso**    | Protege a área administrativa            |
+|  **Login**                 | Acesso autenticado à área administrativa |
+|  **Cadastrar termos**       | Adiciona novos termos jurídicos          |
+|  **Editar termos**         | Atualiza informações existentes          |
+|  **Excluir termos**       | Remove termos cadastrados                |
+|  **Gerenciar categorias** | Cria e gerencia categorias               |
+|  **Controle de acesso**    | Protege a área administrativa            |
 
 ---
 
-## 📋 Requisitos Funcionais
+##  Requisitos Funcionais
 (isso não está escrito em pedra)
 | Código | Requisito                                |
 | ------ | ---------------------------------------- |
@@ -92,7 +92,7 @@ A plataforma foi idealizada para pessoas que não possuem conhecimento técnico 
 
 ---
 
-## ⚙️ Requisitos Não Funcionais
+##  Requisitos Não Funcionais
 | Código | Requisito                       |
 | ------ | ------------------------------- |
 | RNF01 | Interface simples e intuitiva    |
@@ -106,7 +106,7 @@ A plataforma foi idealizada para pessoas que não possuem conhecimento técnico 
 | RNF09 | Linguagem clara e acessível      |
 ---
 
-### 💻 Equipe de Desenvolvimento
+###  Equipe de Desenvolvimento
 
 | Integrante   | Função   | GitHub    |
 | ------------ | -------- | --------- |
@@ -124,11 +124,11 @@ A plataforma foi idealizada para pessoas que não possuem conhecimento técnico 
 ---
 <p align="center">
 
-### ⚖️ JurisFácil
+###  JurisFácil
 
 **Simplificando o Direito. Aproximando a informação.**
 
-Desenvolvido com 💻 pela equipe JurisFácil.
+Desenvolvido pela equipe JurisFácil.
 (UFC - universidade federal do ceará & FPJ-Faculdade Primeiro de Janeiro)
 
 </p>
