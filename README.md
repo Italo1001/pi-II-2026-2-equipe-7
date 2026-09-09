@@ -1,4 +1,4 @@
-# ⚖️ JurisFácil
+# JurisFácil
 
 ### **O Direito explicado de forma simples.**
 
@@ -10,26 +10,8 @@
 
 O **JurisFácil** é um sistema web desenvolvido com o objetivo de **facilitar a compreensão de termos e expressões jurídicas**.
 
-A plataforma foi idealizada para pessoas que não possuem conhecimento técnico na área do Direito e desejam compreender rapidamente o significado de palavras e conceitos jurídicos.
+A plataforma foi pensada para pessoas que não possuem conhecimento técnico na área do Direito e desejam compreender rapidamente o significado de palavras e conceitos jurídicos.
 
-> **JurisFácil — tornando o conhecimento jurídico mais acessível.**
-
----
-
-### Objetivos específicos ( sujestão da FPJ)
-
-   Permitir a pesquisa de termos jurídicos;
-   Apresentar significados em linguagem simplificada;
-   Disponibilizar exemplos de utilização;
-   Organizar os termos por categorias;
-   Implementar autenticação para administradores;
-   Criar uma área administrativa;
-   Permitir cadastro, edição e exclusão de termos;
-   Armazenar as informações em banco de dados;
-   Garantir responsividade em diferentes dispositivos;
-   Realizar testes das funcionalidades;
-   Utilizar Sprints e Kanban para organização do desenvolvimento;
-   Utilizar GitHub para versionamento e gerenciamento do projeto.
 
 ---
 
