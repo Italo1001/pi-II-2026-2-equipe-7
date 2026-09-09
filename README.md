@@ -18,18 +18,18 @@ A plataforma foi idealizada para pessoas que não possuem conhecimento técnico 
 
 ### Objetivos específicos ( sujestão da FPJ)
 
-*  Permitir a pesquisa de termos jurídicos;
-*  Apresentar significados em linguagem simplificada;
-*  Disponibilizar exemplos de utilização;
-*  Organizar os termos por categorias;
-*  Implementar autenticação para administradores;
-*  Criar uma área administrativa;
-*  Permitir cadastro, edição e exclusão de termos;
-*  Armazenar as informações em banco de dados;
-*  Garantir responsividade em diferentes dispositivos;
-*  Realizar testes das funcionalidades;
-*  Utilizar Sprints e Kanban para organização do desenvolvimento;
-*  Utilizar GitHub para versionamento e gerenciamento do projeto.
+   Permitir a pesquisa de termos jurídicos;
+   Apresentar significados em linguagem simplificada;
+   Disponibilizar exemplos de utilização;
+   Organizar os termos por categorias;
+   Implementar autenticação para administradores;
+   Criar uma área administrativa;
+   Permitir cadastro, edição e exclusão de termos;
+   Armazenar as informações em banco de dados;
+   Garantir responsividade em diferentes dispositivos;
+   Realizar testes das funcionalidades;
+   Utilizar Sprints e Kanban para organização do desenvolvimento;
+   Utilizar GitHub para versionamento e gerenciamento do projeto.
 
 ---
 
