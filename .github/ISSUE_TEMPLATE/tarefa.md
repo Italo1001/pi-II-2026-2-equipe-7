@@ -1,6 +1,6 @@
 ---
-nome: Tarefa.
-sobre: templeta para tarefas do projeto.
+name: Tarefa.
+about: templeta para tarefas do projeto.
 titulo:
 lebels:
 assigneers:
