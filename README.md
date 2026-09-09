@@ -4,7 +4,7 @@
 
 
 
----
+
 
 ## Sobre o Projeto
 
@@ -13,7 +13,7 @@ O **JurisFácil** é um sistema web desenvolvido com o objetivo de **facilitar a
 A plataforma foi pensada para pessoas que não possuem conhecimento técnico na área do Direito e desejam compreender rapidamente o significado de palavras e conceitos jurídicos.
 
 
----
+
 
 ##  Funcionalidades
 ( até o momento vamos trabalhar em cima desses topicos, já que foram solicitados pela FPJ)
@@ -41,7 +41,6 @@ A plataforma foi pensada para pessoas que não possuem conhecimento técnico na 
 |  **Gerenciar categorias** | Cria e gerencia categorias               |
 |  **Controle de acesso**    | Protege a área administrativa            |
 
----
 
 ##  Requisitos Funcionais
 (isso não está escrito em pedra)
@@ -64,7 +63,7 @@ A plataforma foi pensada para pessoas que não possuem conhecimento técnico na 
 | RF15   | Controle de acesso administrativo        |
 
 
----
+
 
 ##  Requisitos Não Funcionais
 | Código | Requisito                       |
@@ -78,7 +77,6 @@ A plataforma foi pensada para pessoas que não possuem conhecimento técnico na 
 | RNF07 | Compatibilidade com navegadores  |
 | RNF08 | Permitir futuras expansões       |
 | RNF09 | Linguagem clara e acessível      |
----
 
 ###  Equipe de Desenvolvimento
 
@@ -95,7 +93,7 @@ A plataforma foi pensada para pessoas que não possuem conhecimento técnico na 
 | **[Larissa]** | [Requisitos/Desing] | [larissardr] |
 
 
----
+
 <p align="center">
 
 ###  JurisFácil
