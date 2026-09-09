@@ -2,19 +2,11 @@
 
 ### **O Direito explicado de forma simples.**
 
-<p align="center">
-  <strong>🔎 Pesquise • 📖 Entenda • 💡 Aprenda</strong>
-</p>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/status-em%20desenvolvimento-yellow" alt="Status">
-  <img src="https://img.shields.io/badge/gestão-Kanban-purple" alt="Kanban">
-  <img src="https://img.shields.io/badge/GitHub-versionamento-black" alt="GitHub">
-</p>
 
 ---
 
-## 📌 Sobre o Projeto
+## Sobre o Projeto
 
 O **JurisFácil** é um sistema web desenvolvido com o objetivo de **facilitar a compreensão de termos e expressões jurídicas**.
 
@@ -131,4 +123,8 @@ A plataforma foi idealizada para pessoas que não possuem conhecimento técnico 
 Desenvolvido pela equipe JurisFácil.
 (UFC - universidade federal do ceará & FPJ-Faculdade Primeiro de Janeiro)
 
+  <p aling="center">
+    <img src="https://blog-static.infra.grancursosonline.com.br/wp-content/uploads/2015/09/03174643/UFC2.png" width="150" align="rigth">
+    <img src="https://www.anuariodoceara.com.br/wp-content/uploads/2024/05/FPJ-logo-PADRAO-1-300x183.png" width="150">
+  
 </p>
