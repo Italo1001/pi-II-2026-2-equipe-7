@@ -89,23 +89,21 @@ A plataforma foi idealizada para pessoas que não possuem conhecimento técnico 
 | RF14   | Página sobre o projeto                   |
 | RF15   | Controle de acesso administrativo        |
 
-(Sujeito a alterações)
+
 ---
 
 ## ⚙️ Requisitos Não Funcionais
-
-* 🎨 Interface simples e intuitiva;
-* 📱 Design responsivo;
-* ⚡ Tempo de resposta adequado;
-* 🔐 Armazenamento seguro de senhas;
-* 🛡️ Controle de acesso;
-* 🗄️ Integridade dos dados;
-* 💻 Compatibilidade com navegadores modernos;
-* 🧹 Código organizado e documentado;
-* 📈 Estrutura preparada para futuras expansões;
-* 📖 Conteúdo apresentado em linguagem clara;
-* 🔒 Mecanismos básicos contra acessos não autorizados. ( apenas pro adm modificar)
-
+| Código | Requisito                       |
+| ------ | ------------------------------- |
+| RNF01 | Interface simples e intuitiva    |
+| RNF02 | Sistema responsivo               |
+| RNF03 | Tempo de resposta adequado       |
+| RNF04 | Senhas armazenadas com segurança |
+| RNF05 | Integridade dos dados            |
+| RNF06 | Código organizado e documentado  |
+| RNF07 | Compatibilidade com navegadores  |
+| RNF08 | Permitir futuras expansões       |
+| RNF09 | Linguagem clara e acessível      |
 ---
 
 ### 💻 Equipe de Desenvolvimento
