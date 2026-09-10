@@ -56,11 +56,10 @@ A plataforma foi pensada para pessoas que não possuem conhecimento técnico na 
 | RF08   | Edição de termos                         |
 | RF09   | Exclusão de termos                       |
 | RF10   | Gerenciamento de categorias              |
-| RF11   | Armazenamento em banco de dados          |
-| RF12   | Aviso de termo não cadastrado            |
-| RF13   | Filtragem por categoria                  |
-| RF14   | Página sobre o projeto                   |
-| RF15   | Controle de acesso administrativo        |
+| RF11   | Aviso de termo não cadastrado            |
+| RF12   | Filtragem por categoria                  |
+| RF13   | Página sobre o projeto                   |
+| RF14   | Controle de acesso administrativo        |
 
 
 
@@ -77,6 +76,7 @@ A plataforma foi pensada para pessoas que não possuem conhecimento técnico na 
 | RNF07 | Compatibilidade com navegadores  |
 | RNF08 | Permitir futuras expansões       |
 | RNF09 | Linguagem clara e acessível      |
+| RNF10 | Armazenamento em banco de dados  |
 
 ###  Equipe de Desenvolvimento
 
@@ -101,7 +101,7 @@ A plataforma foi pensada para pessoas que não possuem conhecimento técnico na 
 **Simplificando o Direito. Aproximando a informação.**
 
 Desenvolvido pela equipe JurisFácil.
-(UFC - universidade federal do ceará & FPJ-Faculdade Primeiro de Janeiro)
+(UFC - Universidade Federal do Ceará & FPJ-Faculdade Primeiro de Janeiro)
 
   <p aling="center">
     <img src="https://blog-static.infra.grancursosonline.com.br/wp-content/uploads/2015/09/03174643/UFC2.png" width="150" align="rigth">
