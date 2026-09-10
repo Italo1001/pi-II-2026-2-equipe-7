@@ -2,9 +2,9 @@
 
 name: Caso de Teste
 about: Especificação e execução de testes do JurisFàcil
-title: 'CT-XXX—'
-labels: '
-assignees: '
+title: CT-XXX—
+labels:
+assignees:
 ---
 
 
