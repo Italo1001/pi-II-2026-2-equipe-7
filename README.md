@@ -104,6 +104,6 @@ Desenvolvido pela equipe JurisFácil.
 (UFC - Universidade Federal do Ceará & FPJ-Faculdade Primeiro de Janeiro)
 
   <p aling="center">
-    <img src="https://blog-static.infra.grancursosonline.com.br/wp-content/uploads/2015/09/03174643/UFC2.png" width="150" align="rigth">
+    <img src="https://blog-static.infra.grancursosonline.com.br/wp-content/uploads/2015/09/03174643/UFC2.png" width="150" align="rigth"> 
     <img src="https://www.anuariodoceara.com.br/wp-content/uploads/2024/05/FPJ-logo-PADRAO-1-300x183.png" width="150">
   </p>
