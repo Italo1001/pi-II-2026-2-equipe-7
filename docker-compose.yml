@@ -1,0 +1,25 @@
+services:
+
+  backend:
+    build:
+      context: ./backend
+    container_name: pi2-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+
+  database:
+    image: postgres:17
+    container_name: pi2-database
+    environment:
+      POSTGRES_DB: pi2
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
