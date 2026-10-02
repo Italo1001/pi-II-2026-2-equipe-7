@@ -1,0 +1,8 @@
+{
+  "name": "JurisFácil",
+  "short_name": "JurisFácil",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F9F8F6",
+  "theme_color": "#1A1C1E"
+}
