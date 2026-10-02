@@ -22,7 +22,7 @@ services:
     image: postgres:17
     container_name: pi2-database
     environment:
-      POSTGRES_DB: pi2
+      POSTGRES_DB: JurisFacil
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
