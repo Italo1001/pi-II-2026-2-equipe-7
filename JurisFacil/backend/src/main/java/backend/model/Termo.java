@@ -1,14 +1,32 @@
 package backend.model;
 
-import lombok.Data;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
-@Data
+@Entity
+@Table(name = "termos")
 public class Termo {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "termo")
     private String nome;
+
+    @Column(name = "definicao", columnDefinition = "TEXT")
     private String significado;
+
+    @Transient
     private String area;
+
+    public Termo() {
+    }
 
     public Termo(Long id, String nome, String significado, String area) {
         this.id = id;
@@ -16,7 +34,7 @@ public class Termo {
         this.significado = significado;
         this.area = area;
     }
-    
+
     public Long getId() {
         return id;
     }
@@ -48,5 +66,4 @@ public class Termo {
     public void setArea(String area) {
         this.area = area;
     }
-
 }
