@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import backend.exception.RecursoNaoEncontradoException;
 import backend.model.Termo;
 import backend.repository.TermoRepository;
 
@@ -22,12 +23,22 @@ public class TermoService {
     }
 
     // Rota 02
-    public Termo buscarPorId(Long id) {
-        return repository.findById(id).orElse(null);
+    public Termo buscarPorId(Long id) throws RecursoNaoEncontradoException {
+        return repository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Termo não encontrado com id " + id));
     }
 
     // Rota 03
     public List<Termo> pesquisarTermo(String busca) {
-        return repository.findByNomeContainingIgnoreCase(busca);
+        if (busca == null || busca.trim().isEmpty()) {
+            throw new IllegalArgumentException("O parâmetro 'q' não pode estar vazio.");
+        }
+
+        return repository.findAll().stream()
+            .filter(termo ->
+                termo.getNome()
+                    .toLowerCase()
+                    .contains(busca.toLowerCase())
+            )
+            .toList();
     }
 }

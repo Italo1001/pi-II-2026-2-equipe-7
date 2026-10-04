@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import backend.exception.RecursoNaoEncontradoException;
 import backend.model.Termo;
 import backend.service.TermoService;
 
@@ -30,7 +31,7 @@ public class TermoController {
  
     //Rota 02 — Buscar termo por identificador
     @GetMapping("/{id}")
-    public Termo buscarTermo(@PathVariable Long id) {
+    public Termo buscarTermo(@PathVariable Long id) throws RecursoNaoEncontradoException {
         return termoService.buscarPorId(id);
     }
 
