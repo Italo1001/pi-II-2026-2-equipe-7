@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import backend.exception.RecursoNaoEncontradoException;
 import backend.model.Termo;
 
 @Service
@@ -40,16 +41,12 @@ public class CategoriaService {
         );
     }
 
-    public List<Termo> listarTermosPorCategoria(Long id) {
+    public List<Termo> listarTermosPorCategoria(Long id) throws RecursoNaoEncontradoException {
         String categoria = switch (id == null ? -1 : Math.toIntExact(id)) {
             case 1 -> "Direito Constitucional";
             case 2 -> "Direito Civil";
-            default -> null;
+            default -> throw new RecursoNaoEncontradoException("Categoria não encontrada com id " + id);
         };
-
-        if (categoria == null) {
-            return List.of();
-        }
 
         return TERMOS.stream()
             .filter(termo -> termo.getArea().equals(categoria))
