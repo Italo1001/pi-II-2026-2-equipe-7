@@ -9,17 +9,17 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
 @Entity
-@Table(name = "termos")
+@Table(name = "termo")
 public class Termo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "termo")
+    @Column(name = "nome")
     private String nome;
 
-    @Column(name = "definicao", columnDefinition = "TEXT")
+    @Column(name = "definicao_tecnica", columnDefinition = "TEXT")
     private String significado;
 
     @Transient

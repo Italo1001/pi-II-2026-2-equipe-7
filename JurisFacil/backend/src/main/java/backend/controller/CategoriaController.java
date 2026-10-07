@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import backend.dto.CategoriaComTermosDTO;
 import backend.exception.RecursoNaoEncontradoException;
-import backend.model.Termo;
 import backend.service.CategoriaService;
 
 @RestController
@@ -21,13 +21,15 @@ public class CategoriaController {
         this.categoriaService = categoriaService;
     }
 
+    // Rota 04
     @GetMapping 
     public List<String> listarCategorias() {
         return categoriaService.listarCategorias();
     }
 
+    // Rota 05
     @GetMapping("/{id}/termos")
-    public List<Termo> ListarTermosPorCategoria(@PathVariable Long id) throws RecursoNaoEncontradoException {
-        return categoriaService.listarTermosPorCategoria(id);
+    public CategoriaComTermosDTO ListarTermosPorCategoria(@PathVariable Long id) throws RecursoNaoEncontradoException {
+        return categoriaService.listarTermosPorCategoriaComDTO(id);
     }
 }
