@@ -33,12 +33,6 @@ public class TermoService {
             throw new IllegalArgumentException("O parâmetro 'q' não pode estar vazio.");
         }
 
-        return repository.findAll().stream()
-            .filter(termo ->
-                termo.getNome()
-                    .toLowerCase()
-                    .contains(busca.toLowerCase())
-            )
-            .toList();
+        return repository.findAll().stream().filter(termo ->termo.getNome().toLowerCase().contains(busca.toLowerCase())).toList();
     }
 }
