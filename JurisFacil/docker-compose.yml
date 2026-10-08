@@ -13,8 +13,6 @@ services:
     build:
       context: ./backend
     container_name: pi2-backend
-    environment:
-      DB_HOST: database
     ports:
       - "8080:8080"
     depends_on:

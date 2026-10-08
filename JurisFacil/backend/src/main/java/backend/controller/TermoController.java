@@ -28,17 +28,16 @@ public class TermoController {
     public List<Termo> listarTermos() {
         return termoService.listarTermos();
     }
-    
-    // Rota 03 — Pesquisar termo
-    @GetMapping("/busca")
-    public List<Termo> pesquisarTermo(@RequestParam String q) {
-        return termoService.pesquisarTermo(q);
-    }
-    
+ 
     //Rota 02 — Buscar termo por identificador
     @GetMapping("/{id}")
     public Termo buscarTermo(@PathVariable Long id) throws RecursoNaoEncontradoException {
         return termoService.buscarPorId(id);
     }
 
+    // Rota 03 — Pesquisar termo
+    @GetMapping("/busca")
+    public List<Termo> pesquisarTermo(@RequestParam String q) {
+        return termoService.pesquisarTermo(q);
+    }
 }

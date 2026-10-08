@@ -1,32 +1,26 @@
 const API_URL = "http://localhost:8080";
 
-async function getJson(url) {
-    const resposta = await fetch(url);
-
-    if (!resposta.ok) {
-        throw new Error(`Falha na API (${resposta.status}): ${resposta.statusText}`);
-    }
-
+export async function listarTermos() {
+    const resposta = await fetch(`${API_URL}/termos`);
     return await resposta.json();
 }
 
-export async function listarTermos() {
-    return getJson(`${API_URL}/termos`);
-}
-
 export async function buscarTermo(id) {
-    return getJson(`${API_URL}/termos/${id}`);
+    const resposta = await fetch(`${API_URL}/termos/${id}`);
+    return await resposta.json();
 }
 
 export async function pesquisarTermo(q) {
-    const params = new URLSearchParams({ q });
-    return getJson(`${API_URL}/termos/busca?${params}`);
+    const resposta = await fetch(`${API_URL}/termos/busca?q=${q}`);
+    return await resposta.json();
 }
 
 export async function listarCategorias() {
-    return getJson(`${API_URL}/categorias`);
+    const resposta = await fetch(`${API_URL}/categorias`);
+    return await resposta.json();
 }
 
 export async function listarTermosPCategoria(id) {
-    return getJson(`${API_URL}/categorias/${id}/termos`);
+    const resposta = await fetch(`${API_URL}/categorias/${id}termos`);
+    return await resposta.json();
 }
