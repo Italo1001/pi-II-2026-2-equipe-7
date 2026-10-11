@@ -5,8 +5,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "termo")
@@ -22,18 +24,18 @@ public class Termo {
     @Column(name = "definicao_tecnica", columnDefinition = "TEXT")
     private String significado;
 
-    @Transient
-    private String area;
+   @ManyToOne
+   @JoinColumn(name = "area_direito_id")
+   private areaDireito area;
 
     public Termo() {
     }
 
     public Termo(Long id, String nome, String significado, String area) {
-        this.id = id;
-        this.nome = nome;
-        this.significado = significado;
-        this.area = area;
-    }
+    this.id = id;
+    this.nome = nome;
+    this.significado = significado;
+}
 
     public Long getId() {
         return id;
@@ -48,8 +50,12 @@ public class Termo {
     }
 
     public String getArea() {
-        return area;
+    if (area!= null) {
+        return area.getNome();
     }
+
+    return null;
+}
 
     public void setId(Long id) {
         this.id = id;
@@ -62,8 +68,13 @@ public class Termo {
     public void setSignificado(String significado) {
         this.significado = significado;
     }
+    
+    @JsonIgnore
+    public areaDireito getAreaDireito() {
+    return area;
+}
 
-    public void setArea(String area) {
-        this.area = area;
-    }
+   public void setAreaDireito(areaDireito areaDireito) {
+    this.area= areaDireito;
+  }
 }

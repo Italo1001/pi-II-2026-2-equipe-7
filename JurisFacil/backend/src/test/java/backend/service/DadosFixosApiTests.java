@@ -1,39 +1,120 @@
+
 package backend.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import backend.data.DadosFixosApi;
+import backend.dto.CategoriaComTermosDTO;
 import backend.exception.RecursoNaoEncontradoException;
+import backend.model.Categoria;
+import backend.model.Termo;
+import backend.repository.CategoriaRepository;
+import backend.repository.TermoRepository;
 
 class DadosFixosApiTests {
 
-    private final TermoService termoService = new TermoService();
-    private final CategoriaService categoriaService = new CategoriaService();
-
     @Test
-    void rotasDeTermosUsamListaFixa() throws RecursoNaoEncontradoException {
-        assertEquals(3, termoService.listarTermos().size());
-        assertEquals(1L, termoService.buscarPorId(1L).getId());
-        assertEquals("Habeas Corpus", termoService.pesquisarTermo("habeas").getFirst().getNome());
+    void listarTermosDeveRetornarTermosDoRepositorio() {
+        TermoRepository repository = mock(TermoRepository.class);
+        TermoService termoService = new TermoService(repository);
+
+        Termo termo = new Termo(1L, "Dano Moral", "Definição de teste", null);
+
+        when(repository.findAll()).thenReturn(List.of(termo));
+
+        assertEquals(1, termoService.listarTermos().size());
+        assertEquals("Dano Moral", termoService.listarTermos().getFirst().getNome());
     }
 
     @Test
-    void rotasDeCategoriasUsamIdsFixos() throws RecursoNaoEncontradoException {
-        assertEquals(5, categoriaService.listarCategorias().size());
+    void buscarTermoPorIdDeveRetornarTermoEncontrado() throws RecursoNaoEncontradoException {
+        TermoRepository repository = mock(TermoRepository.class);
+        TermoService termoService = new TermoService(repository);
 
-        var categoria = categoriaService.listarTermosPorCategoriaComDTO(1L);
-        assertEquals("Direito Constitucional", categoria.getNome());
-        assertEquals(1L, categoria.getId());
-        assertEquals(2, categoria.getTermos().size());
-        assertTrue(DadosFixosApi.CATEGORIAS.contains(categoria.getNome()));
+        Termo termo = new Termo(1L, "Dano Moral", "Definição de teste", null);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(termo));
+
+        assertEquals(1L, termoService.buscarPorId(1L).getId());
+    }
+
+    @Test
+    void buscarTermoInexistenteDeveLancarExcecao() {
+        TermoRepository repository = mock(TermoRepository.class);
+        TermoService termoService = new TermoService(repository);
+
+        when(repository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(
             RecursoNaoEncontradoException.class,
-            () -> categoriaService.listarTermosPorCategoriaComDTO(6L)
+            () -> termoService.buscarPorId(99L)
+        );
+    }
+
+    @Test
+    void listarCategoriasDeveRetornarCategoriasDoRepositorio() {
+        CategoriaRepository repository = mock(CategoriaRepository.class);
+        TermoRepository termoRepository = mock(TermoRepository.class);
+        CategoriaService categoriaService = new CategoriaService(repository, termoRepository);
+
+        Categoria categoria = new Categoria();
+        categoria.setId(1L);
+        categoria.setNome("Responsabilidade Civil");
+
+        when(repository.findAll()).thenReturn(List.of(categoria));
+
+        assertEquals(1, categoriaService.listarCategorias().size());
+        assertEquals("Responsabilidade Civil", categoriaService.listarCategorias().getFirst().getNome());
+    }
+
+    @Test
+    void listarTermosPorCategoriaDeveRetornarCategoriaETermos()
+            throws RecursoNaoEncontradoException {
+
+        CategoriaRepository categoriaRepository = mock(CategoriaRepository.class);
+        TermoRepository termoRepository = mock(TermoRepository.class);
+
+        CategoriaService categoriaService =
+            new CategoriaService(categoriaRepository, termoRepository);
+
+        Categoria categoria = new Categoria();
+        categoria.setId(10L);
+        categoria.setNome("Responsabilidade Civil");
+
+        Termo termo = new Termo(1L, "Dano Moral", "Definição de teste", null);
+
+        when(categoriaRepository.findById(10L)).thenReturn(Optional.of(categoria));
+        when(termoRepository.findByCategoriaId(10L)).thenReturn(List.of(termo));
+
+        CategoriaComTermosDTO resultado =
+            categoriaService.listarTermosPorCategoriaComDTO(10L);
+
+        assertEquals(10L, resultado.getId());
+        assertEquals("Responsabilidade Civil", resultado.getNome());
+        assertEquals(1, resultado.getTermos().size());
+    }
+
+    @Test
+    void listarTermosDeCategoriaInexistenteDeveLancarExcecao() {
+        CategoriaRepository categoriaRepository = mock(CategoriaRepository.class);
+        TermoRepository termoRepository = mock(TermoRepository.class);
+
+        CategoriaService categoriaService =
+            new CategoriaService(categoriaRepository, termoRepository);
+
+        when(categoriaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(
+            RecursoNaoEncontradoException.class,
+            () -> categoriaService.listarTermosPorCategoriaComDTO(99L)
         );
     }
 }
+
