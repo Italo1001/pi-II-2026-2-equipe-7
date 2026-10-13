@@ -1,64 +1,54 @@
 import { useState } from 'react';
 
 export default function TesteBackend() {
-  const [termos, setTermos] = useState([]);
-  const [termo, setTermo] = useState(null);
+  const [resultado, setResultado] = useState('');
+  const [carregando, setCarregando] = useState(false);
 
+  async function consultar(caminho) {
+    setCarregando(true);
+    setResultado('Consultando o backend...');
 
-  function listarTermos() {
-fetch('http://localhost:8080/termos', {
-  headers: {
-    Authorization:
-      'Basic ' +
-      btoa('user:57532ec4-b9ea-42c5-867a-843a9b32600e'),
-  },
-})
-      .then(response => response.json())
-      .then(data => setTermos(data))
-      .catch(error => console.error(error));
-  }
+    try {
+      const resposta = await fetch(
+        `http://localhost:8080${caminho}`
+      );
 
-  function buscarTermo() {
-fetch('/termos/1', { 
-    headers: {
-    Authorization:
-      'Basic ' +
-      btoa('user:57532ec4-b9ea-42c5-867a-843a9b32600e'),
-  },
-})
-      .then(response => response.json())
-      .then(data => setTermo(data))
-      .catch(error => console.error(error));
+      const texto = await resposta.text();
+
+      setResultado(
+        `Status HTTP: ${resposta.status}\n\n${texto}`
+      );
+    } catch (erro) {
+      setResultado(`Erro: ${erro.message}`);
+    } finally {
+      setCarregando(false);
+    }
   }
 
   return (
-    <div style={{ padding: '30px', fontFamily: 'Arial' }}>
-      <h1>Teste de Integração</h1>
+    <div style={{ padding: 30, fontFamily: 'Arial' }}>
+      <h1>Teste de Integração - JurisFácil</h1>
 
-      <button onClick={listarTermos}>
+      <button
+        onClick={() => consultar('/termos')}
+        disabled={carregando}
+      >
         Listar termos
       </button>
 
-      <button onClick={buscarTermo} style={{ marginLeft: '10px' }}>
+      <button
+        onClick={() => consultar('/termos/1')}
+        disabled={carregando}
+        style={{ marginLeft: 10 }}
+      >
         Buscar termo 1
       </button>
 
-      <h2>Todos os termos</h2>
+      <h2>Resultado</h2>
 
-      {termos.map(item => (
-        <div key={item.id}>
-          <strong>{item.termo}</strong>
-          <p>{item.definicao}</p>
-        </div>
-      ))}
-
-      {termo && (
-        <div>
-          <h2>Termo encontrado</h2>
-          <strong>{termo.termo}</strong>
-          <p>{termo.definicao}</p>
-        </div>
-      )}
+      <pre style={{ whiteSpace: 'pre-wrap' }}>
+        {resultado || 'Clique em um botão para testar.'}
+      </pre>
     </div>
   );
 }

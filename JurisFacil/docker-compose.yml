@@ -15,10 +15,14 @@ services:
     container_name: pi2-backend
     environment:
       DB_HOST: database
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/pi2
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
     ports:
       - "8080:8080"
     depends_on:
-      - database
+      database:
+        condition: service_healthy
 
   database:
     image: postgres:17
@@ -32,6 +36,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./bancoDados:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d JurisFacil"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
 volumes:
   postgres_data:
