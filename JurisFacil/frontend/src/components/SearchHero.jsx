@@ -1,3 +1,4 @@
+import { searchTerms } from '../utils/search';
 import { Search, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -5,15 +6,7 @@ const HERO_IMAGE =
   'https://media.base44.com/images/public/6a9dbf9701f9692e2db31f20/25debe244_generated_05d020d6.jpg';
 
 export default function SearchHero({ terms, query, setQuery }) {
-  const results = query.trim()
-    ? terms
-        .filter((t) =>
-          `${t.term} ${t.short_definition}`
-            .toLowerCase()
-            .includes(query.toLowerCase())
-        )
-        .slice(0, 5)
-    : [];
+  const results = searchTerms(terms, query);
 
   return (
     <section
@@ -63,8 +56,8 @@ export default function SearchHero({ terms, query, setQuery }) {
             />
           </div>
 
-          {query && (
-            <div className="absolute z-20 mt-2 w-full border border-[#D4D1CC] bg-[#F9F8F6] p-2 shadow-2xl">
+          {query.trim() && (
+            <div className="absolute z-20 mt-2 max-h-80 overflow-y-auto w-full border border-[#D4D1CC] bg-[#F9F8F6] p-2 shadow-2xl">
               {results.length ? (
                 results.map((t) => (
                   <Link

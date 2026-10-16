@@ -22,6 +22,7 @@ export default function TermIndex({ terms }) {
       </div>
 
       <div className="space-y-20">
+        {terms.length === 0 && <p role="status">Nenhum termo encontrado nesta área.</p>}
         {groups.map((letter) => (
           <div
             id={`letra-${letter}`}

@@ -1,64 +1,27 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { listarTermos, buscarTermo } from '../api/api';
 
 export default function TesteBackend() {
-  const [termos, setTermos] = useState([]);
-  const [termo, setTermo] = useState(null);
-
-
-  function listarTermos() {
-fetch('http://localhost:8080/termos', {
-  headers: {
-    Authorization:
-      'Basic ' +
-      btoa('user:57532ec4-b9ea-42c5-867a-843a9b32600e'),
-  },
-})
-      .then(response => response.json())
-      .then(data => setTermos(data))
-      .catch(error => console.error(error));
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  async function consultar(action) {
+    setLoading(true); setError(''); setData(null);
+    try { setData(await action()); }
+    catch (err) { setError(err.message); }
+    finally { setLoading(false); }
   }
-
-  function buscarTermo() {
-fetch('/termos/1', { 
-    headers: {
-    Authorization:
-      'Basic ' +
-      btoa('user:57532ec4-b9ea-42c5-867a-843a9b32600e'),
-  },
-})
-      .then(response => response.json())
-      .then(data => setTermo(data))
-      .catch(error => console.error(error));
-  }
-
-  return (
-    <div style={{ padding: '30px', fontFamily: 'Arial' }}>
-      <h1>Teste de Integração</h1>
-
-      <button onClick={listarTermos}>
-        Listar termos
-      </button>
-
-      <button onClick={buscarTermo} style={{ marginLeft: '10px' }}>
-        Buscar termo 1
-      </button>
-
-      <h2>Todos os termos</h2>
-
-      {termos.map(item => (
-        <div key={item.id}>
-          <strong>{item.termo}</strong>
-          <p>{item.definicao}</p>
-        </div>
-      ))}
-
-      {termo && (
-        <div>
-          <h2>Termo encontrado</h2>
-          <strong>{termo.termo}</strong>
-          <p>{termo.definicao}</p>
-        </div>
-      )}
+  return <main className="mx-auto max-w-4xl p-8">
+    <Link className="underline" to="/">Voltar ao dicionário</Link>
+    <h1 className="my-6 font-serif text-4xl">Teste de integração</h1>
+    <p>Ferramenta de diagnóstico. As telas públicas ainda usam dados locais.</p>
+    <div className="my-6 flex gap-4">
+      <button className="border p-3" disabled={loading} onClick={() => consultar(listarTermos)}>Listar termos</button>
+      <button className="border p-3" disabled={loading} onClick={() => consultar(() => buscarTermo(1))}>Buscar termo 1</button>
     </div>
-  );
+    {loading && <p role="status">Carregando…</p>}
+    {error && <p role="alert">{error}</p>}
+    {data !== null && <><p role="status">Consulta concluída.</p><pre className="mt-4 overflow-auto whitespace-pre-wrap">{JSON.stringify(data, null, 2)}</pre></>}
+  </main>;
 }
