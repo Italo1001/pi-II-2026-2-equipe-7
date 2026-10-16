@@ -1,0 +1,63 @@
+# Documentação de Índices do Banco de Dados — JurisFácil
+
+## 1. Objetivo
+
+Documentar os índices existentes no banco de dados e identificar os índices relevantes para otimizar as operações de pesquisa e filtragem dos termos jurídicos.
+
+## 2. Índices existentes
+
+Foram identificados os seguintes índices no PostgreSQL:
+
+| Tabela | Índice | Coluna | Finalidade |
+|---|---|---|---|
+| administrador | administrador_email_key | email | Garantir a unicidade do e-mail e otimizar buscas por igualdade. |
+| administrador | administrador_pkey | id | Identificar administradores pela chave primária. |
+| area_direito | area_direito_pkey | id | Identificar áreas do direito pela chave primária. |
+| categoria | categoria_pkey | id | Identificar categorias pela chave primária. |
+| exemplo | exemplo_pkey | id | Identificar exemplos pela chave primária. |
+| termo | termo_pkey | id | Identificar termos pela chave primária. |
+| termos | termos_pkey | id | Identificar registros da tabela pela chave primária. |
+
+## 3. Operações de pesquisa e filtragem
+
+### 3.1. Pesquisa por nome do termo
+
+O repositório `TermoRepository` utiliza o método:
+
+`findByNomeContainingIgnoreCase(String busca)`
+
+Essa operação permite pesquisar termos por parte do nome, sem diferenciar letras maiúsculas e minúsculas.
+
+Um índice B-tree convencional não costuma acelerar pesquisas com padrões que começam por curinga, como `%texto%`.
+
+**Recomendação:** avaliar a criação de um índice GIN com a extensão PostgreSQL `pg_trgm`, que permite otimizar pesquisas parciais compatíveis com trigramas.
+
+A extensão está disponível na versão 1.6, mas não estava instalada no banco no momento da consulta.
+
+### 3.2. Filtragem por categoria
+
+O repositório utiliza a consulta:
+
+`SELECT * FROM termo WHERE categoria_id = :categoriaId`
+
+Essa operação filtra os termos pelo identificador da categoria.
+
+**Recomendação:** avaliar a criação de um índice B-tree na coluna `termo.categoria_id`, pois ele pode melhorar o desempenho dessa filtragem conforme o volume de dados aumentar.
+
+### 3.3. Busca por identificador
+
+As buscas por ID utilizam as chaves primárias das tabelas, que já possuem índices.
+
+Não é necessário criar índices adicionais para essas operações.
+
+## 4. Considerações
+
+Os índices existentes incluem aqueles associados às chaves primárias e à restrição de unicidade do e-mail do administrador.
+
+Os índices recomendados para pesquisa parcial por nome e filtragem por categoria devem ser avaliados conforme o volume de dados e o desempenho das consultas.
+
+A criação de novos índices deve considerar o ganho de desempenho esperado e o custo adicional nas operações de inserção, atualização e exclusão.
+
+## 5. Conclusão
+
+Este documento registra os índices identificados no banco de dados do JurisFácil e apresenta recomendações para otimizar as operações de pesquisa e filtragem de termos jurídicos.

@@ -4,28 +4,45 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import backend.data.DadosFixosApi;
 import backend.dto.CategoriaComTermosDTO;
 import backend.exception.RecursoNaoEncontradoException;
+import backend.model.Categoria;
 import backend.model.Termo;
+import backend.repository.CategoriaRepository;
+import backend.repository.TermoRepository;
 
 @Service
 public class CategoriaService {
 
-    public List<String> listarCategorias() {
-        return DadosFixosApi.CATEGORIAS;
-    }
 
-    public CategoriaComTermosDTO listarTermosPorCategoriaComDTO(Long id) throws RecursoNaoEncontradoException {
-        if (id == null || id < 1 || id > DadosFixosApi.CATEGORIAS.size()) {
-            throw new RecursoNaoEncontradoException("Categoria não encontrada com id: " + id);
-        }
+private final CategoriaRepository categoriaRepository;
+private final TermoRepository termoRepository;
 
-        String categoria = DadosFixosApi.CATEGORIAS.get(Math.toIntExact(id - 1));
-        List<Termo> termos = DadosFixosApi.TERMOS.stream()
-            .filter(termo -> categoria.equals(termo.getArea()))
-            .toList();
+public CategoriaService(
+        CategoriaRepository categoriaRepository,
+        TermoRepository termoRepository) {
+    this.categoriaRepository = categoriaRepository;
+    this.termoRepository = termoRepository;
+}
 
-        return new CategoriaComTermosDTO(id, categoria, termos);
-    }
+public List<Categoria> listarCategorias() {
+    return categoriaRepository.findAll();
+}
+
+public CategoriaComTermosDTO listarTermosPorCategoriaComDTO(Long id)
+        throws RecursoNaoEncontradoException {
+
+    Categoria categoria = categoriaRepository.findById(id)
+            .orElseThrow(() -> new RecursoNaoEncontradoException(
+                    "Categoria não encontrada com id: " + id));
+
+    List<Termo> termos = termoRepository.findByCategoriaId(id);
+
+    return new CategoriaComTermosDTO(
+            categoria.getId(),
+            categoria.getNome(),
+            termos);
+}
+
+
 }
