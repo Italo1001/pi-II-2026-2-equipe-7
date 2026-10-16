@@ -35,7 +35,7 @@ export default function AdminLogin() {
         <p className="text-xs font-semibold uppercase tracking-[.25em] text-[#8C7356]">JurisFácil · Administração</p>
         <h1 className="mt-6 max-w-xl font-serif text-5xl leading-tight sm:text-7xl">Conhecimento claro começa com cuidado.</h1>
         <p className="mt-7 max-w-md text-lg leading-8 text-[#55585B]">Um espaço para organizar os termos, as explicações e os exemplos que aproximam as pessoas do Direito.</p>
-        <p className="mt-8 max-w-md border-l-2 border-[#8C7356] pl-5 text-sm leading-6 text-[#55585B]">A consulta ao dicionário é pública. Este acesso é exclusivo para administradores autorizados.</p>
+       {/* <p className="mt-8 max-w-md border-l-2 border-[#8C7356] pl-5 text-sm leading-6 text-[#55585B]">A consulta ao dicionário é pública. Este acesso é exclusivo para administradores autorizados.</p>*/} 
       </section>
 
       <section aria-labelledby="login-title" className="w-full max-w-lg border border-[#D4D1CC] bg-white/50 p-6 sm:p-10 lg:justify-self-end">
