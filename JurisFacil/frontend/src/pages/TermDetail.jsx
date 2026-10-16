@@ -1,99 +1,128 @@
-import { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
-import { legalTerms } from '../data/legalTerms';
+import { buscarTermo } from '../api/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import TermContent from '../components/TermContent';
 
 export default function TermDetail() {
-  const { slug } = useParams();
-  const [simple, setSimple] = useState(false);
+  const { id } = useParams();
+  const [response, setResponse] = useState(null);
+  const [attempt, setAttempt] = useState(0);
 
-  const term = legalTerms.find((item) => item.slug === slug);
+  const validId = /^[1-9]\d*$/.test(id);
 
-  if (!term) {
-    return (
-      <main className="grid min-h-screen place-items-center bg-[#F9F8F6] p-6 text-center">
-        <div>
-          <p className="font-serif text-5xl">
-            Termo não encontrado.
-          </p>
+  useEffect(() => {
+    if (!validId) return;
 
-          <Link
-            to="/"
-            className="mt-8 inline-flex min-h-12 items-center text-[#8C7356] underline"
-          >
-            Voltar ao dicionário
-          </Link>
-        </div>
-      </main>
-    );
-  }
+    let active = true;
+
+    buscarTermo(id)
+      .then((data) => {
+        if (!data || data.id == null || typeof data.nome !== 'string') {
+          throw new Error('Resposta inválida do servidor.');
+        }
+
+        if (active) {
+          setResponse({
+            id,
+            attempt,
+            term: data,
+            error: null,
+          });
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          setResponse({
+            id,
+            attempt,
+            term: null,
+            error,
+          });
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [id, attempt, validId]);
+
+  const current =
+    response?.id === id &&
+    response?.attempt === attempt;
+
+  const loading = validId && !current;
+  const error = current ? response.error : null;
+  const term = current ? response.term : null;
+  const notFound = !validId || error?.status === 404;
 
   return (
-    <main className="bg-[#F9F8F6] text-[#1A1C1E]">
+    <main className="min-h-screen bg-[#F9F8F6] text-[#1A1C1E]">
       <Header />
 
-      <article className="mx-auto max-w-7xl px-6 pb-32 pt-32 lg:px-10 lg:pt-40">
+      <article className="mx-auto max-w-5xl px-6 pb-32 pt-32 lg:pt-40">
         <Link
           to="/"
-          className="inline-flex min-h-12 items-center gap-2 text-sm text-[#55585B] hover:text-[#8C7356]"
+          className="inline-flex min-h-12 items-center gap-2 text-[#55585B] underline"
         >
           <ArrowLeft size={17} />
           Voltar ao dicionário
         </Link>
 
-        <div className="mt-12 border-b border-[#1A1C1E] pb-16">
-          <p className="text-xs font-semibold uppercase tracking-[.25em] text-[#8C7356]">
-            {term.category}
+        {loading && (
+          <p role="status" className="mt-10">
+            Carregando termo…
           </p>
+        )}
 
-          <h1 className="mt-5 font-serif text-6xl leading-none sm:text-8xl">
-            {term.term}
+        {notFound && (
+          <h1 className="mt-12 font-serif text-4xl">
+            Termo não encontrado.
           </h1>
+        )}
 
-          <p className="mt-7 max-w-3xl text-lg leading-8 text-[#55585B]">
-            {term.short_definition}
-          </p>
-        </div>
-
-        <div className="mt-16 grid gap-16 lg:grid-cols-12">
-          <aside className="lg:col-span-4">
-            <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#8C7356]">
-              Anatomia do termo
+        {!notFound && error && (
+          <div role="alert" className="mt-10">
+            <p>
+              Não foi possível carregar o termo.
+              Verifique a conexão com o servidor.
             </p>
 
-            <dl className="mt-7 divide-y divide-[#D4D1CC] border-y border-[#D4D1CC]">
-              <div className="py-5">
-                <dt className="text-xs text-[#696969]">
-                  Origem
-                </dt>
+            <button
+              type="button"
+              onClick={() => setAttempt((value) => value + 1)}
+              className="mt-4 min-h-12 underline"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        )}
 
-                <dd className="mt-2 font-serif text-xl">
-                  {term.origin}
-                </dd>
-              </div>
+        {!notFound && term && (
+          <>
+            <div className="mt-12 border-b border-[#D4D1CC] pb-10">
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#8C7356]">
+                {term.area || 'Área não informada'}
+              </p>
 
-              <div className="py-5">
-                <dt className="text-xs text-[#696969]">
-                  Pronúncia
-                </dt>
+              <h1 className="mt-5 break-words font-serif text-5xl sm:text-7xl">
+                {term.nome}
+              </h1>
+            </div>
 
-                <dd className="mt-2 font-serif text-xl">
-                  {term.pronunciation}
-                </dd>
-              </div>
-            </dl>
-          </aside>
+            <section className="mt-12">
+              <h2 className="font-serif text-3xl">
+                Definição jurídica
+              </h2>
 
-          <TermContent
-            term={term}
-            simple={simple}
-            setSimple={setSimple}
-          />
-        </div>
+              <p className="mt-6 whitespace-pre-line text-lg leading-8 text-[#55585B]">
+                {term.significado || 'Definição não informada.'}
+              </p>
+            </section>
+          </>
+        )}
       </article>
 
       <Footer />

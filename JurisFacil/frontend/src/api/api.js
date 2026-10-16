@@ -1,13 +1,18 @@
 const API_URL = "http://localhost:8080";
 
 async function getJson(url) {
-    const resposta = await fetch(url);
+  const resposta = await fetch(url);
 
-    if (!resposta.ok) {
-        throw new Error(`Falha na API (${resposta.status}): ${resposta.statusText}`);
-    }
+  if (!resposta.ok) {
+    const error = new Error(
+      `Falha na API (${resposta.status}): ${resposta.statusText}`
+    );
 
-    return await resposta.json();
+    error.status = resposta.status;
+    throw error;
+  }
+
+  return await resposta.json();
 }
 
 export async function listarTermos() {
