@@ -26,7 +26,7 @@ export default function App() {
       </Route>
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/" element={<Home />} />
-      <Route path="/termo/:slug" element={<TermDetail />} />
+      <Route path="/termo/:id" element={<TermDetail />} />
       <Route path="/teste" element={<TesteBackend />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
