@@ -276,8 +276,10 @@ Autenticar um administrador para acesso às funcionalidades administrativas.
 json
 {
   "email": "admin@jurisfacil.com",
-  "senha": "123456"
+  "senha": "senha-do-administrador"
 }
+
+O email deve ter formato válido e ambos os campos são obrigatórios. Senhas são armazenadas como hash BCrypt; o backend nunca persiste a senha em texto puro.
 
 **Saída:**
 json
@@ -297,6 +299,10 @@ json
 **Código HTTP em caso de credenciais inválidas:**
 
 401 Unauthorized
+
+**Código HTTP em caso de entrada inválida:**
+
+400 Bad Request
 
 **Requisito associado:** `RF-05`
 
@@ -323,8 +329,11 @@ json
 {
   "termo": "Habeas Data",
   "significado": "Instrumento jurídico destinado a assegurar o conhecimento de informações relativas à pessoa.",
-  "categoriaId": 1
+  "categoriaId": 1,
+  "areaId": 4
 }
+
+`areaId` identifica a área do Direito e é obrigatório, assim como `categoriaId`.
 
 **Saída:**
 json
@@ -332,7 +341,8 @@ json
   "id": 10,
   "termo": "Habeas Data",
   "significado": "Instrumento jurídico destinado a assegurar o conhecimento de informações relativas à pessoa.",
-  "categoriaId": 1
+  "categoriaId": 1,
+  "areaId": 4
 }
 
 **Código HTTP:**
@@ -368,8 +378,11 @@ json
 {
   "termo": "Habeas Data",
   "significado": "Instrumento jurídico destinado ao acesso e correção de informações pessoais.",
-  "categoriaId": 1
+  "categoriaId": 1,
+  "areaId": 4
 }
+
+`areaId` identifica a área do Direito e é obrigatório, assim como `categoriaId`.
 
 **Saída:**
 json
@@ -377,7 +390,8 @@ json
   "id": 10,
   "termo": "Habeas Data",
   "significado": "Instrumento jurídico destinado ao acesso e correção de informações pessoais.",
-  "categoriaId": 1
+  "categoriaId": 1,
+  "areaId": 4
 }
 
 **Código HTTP:**
@@ -417,16 +431,16 @@ Exemplo:
 /termos/10
 
 **Saída:**
-json
-{
-  "mensagem": "Termo excluído com sucesso."
-}
+
+Sem corpo.
 
 **Código HTTP:**
 
 204 No Content
 
-> Observação: caso seja utilizado `204 No Content`, a resposta normalmente não deve possuir corpo. A mensagem acima representa uma alternativa caso o backend opte por retornar `200 OK`.
+Caso o termo não exista:
+
+404 Not Found
 
 **Requisito associado:** `RF-08`
 
@@ -458,6 +472,8 @@ json
   "texto": "O advogado solicitou habeas data para obter acesso às informações."
 }
 
+O campo `texto` é obrigatório e não pode estar em branco. O termo precisa existir.
+
 **Saída:**
 json
 {
@@ -469,6 +485,14 @@ json
 **Código HTTP:**
 
 201 Created
+
+Caso o termo não exista:
+
+404 Not Found
+
+Caso `texto` esteja ausente ou em branco:
+
+400 Bad Request
 
 **Requisito associado:** `RF-09`
 
@@ -528,6 +552,14 @@ POST /termos
 PUT /termos/{id}
 DELETE /termos/{id}
 POST /termos/{id}/exemplos
+
+Envie o token retornado pelo login no cabeçalho:
+
+```http
+Authorization: Bearer <token>
+```
+
+O token JWT é assinado pelo backend e expira após o período configurado (padrão: uma hora). A chave deve ser definida pela variável `JWT_SECRET` com no mínimo 32 bytes; não use uma chave padrão em produção.
 
 ---
 

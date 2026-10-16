@@ -155,14 +155,15 @@ INSERT INTO exemplo (texto, termo_id) VALUES
 );
 
 
+-- Senha de desenvolvimento dos administradores: senha123 (hash BCrypt).
 INSERT INTO administrador (nome, email, senha) VALUES
-('Pedro Maciel', 'pedro.maciel@jurisfacil.com', 'senha123'),
-('Italo Costa', 'italo.costa@jurisfacil.com', 'senha123'),
-('Vinicius Azevedo', 'vinicius.azevedo@jurisfacil.com', 'senha123'),
-('Felipe Gabriel', 'felipe.gabriel@jurisfacil.com', 'senha123'),
-('Juan Alves', 'juan.alves@jurisfacil.com', 'senha123'),
-('Rykelme Gonçalves', 'rykelme.goncalves@jurisfacil.com', 'senha123'),
-('Caliel Ximenes', 'caliel.ximenes@jurisfacil.com', 'senha123'),
-('Luiz Felipe', 'luiz.felipe@jurisfacil.com', 'senha123'),
-('Larissa', 'larissa@jurisfacil.com', 'senha123'),
-('Administrador Teste', 'teste@jurisfacil.com', 'senha123');
+('Pedro Maciel', 'pedro.maciel@jurisfacil.com', '$2a$10$LhXN5b76QQqQKaoIzIn/duwf0Xo5PycfRcEkKxRQW5YWGRLv0vZd2'),
+('Italo Costa', 'italo.costa@jurisfacil.com', '$2a$10$9r0DpzwacfvUubUzkKd8POORjO2KAgA4Ebqiv.9/meo7Lgzt2DNA.'),
+('Vinicius Azevedo', 'vinicius.azevedo@jurisfacil.com', '$2a$10$2FlZusjt.S8J9bHWa4pRrumQdymYGWEjghG13utcqc6CWtsYcgBCC'),
+('Felipe Gabriel', 'felipe.gabriel@jurisfacil.com', '$2a$10$r9G/zSPUj1.oYX/x.nnkxOEcrfBEpJhmHug3.18bE9mgsEP4L2Gb.'),
+('Juan Alves', 'juan.alves@jurisfacil.com', '$2a$10$ycSxm0jWqVyZa8CqNEotr.SrGAM6.6dTTLpBHrEjUc4P1RFReuTgS'),
+('Rykelme Gonçalves', 'rykelme.goncalves@jurisfacil.com', '$2a$10$sxGCunbzyd2ieluqRXv34uW8hRK3XG6XpHSi7SXQ47bND.B6LmKX2'),
+('Caliel Ximenes', 'caliel.ximenes@jurisfacil.com', '$2a$10$uRqPkrmUOiavZkcTgzpbguI7b86EopGpRh1pJQCIipPSUL.YGgW/q'),
+('Luiz Felipe', 'luiz.felipe@jurisfacil.com', '$2a$10$YCcmi7QfwCNbBTiWKrtmke980nlcfSB94rs2xvWwOGhjBL/ZSFgOS'),
+('Larissa', 'larissa@jurisfacil.com', '$2a$10$sM0gDKT8g3VqFHpN.ZvTz.9TghoU1j9qqM9Vgqz0qm..O1tgjJ3Ty'),
+('Administrador Teste', 'teste@jurisfacil.com', '$2a$10$IjMP22yXDMLXzoyjxoZ69OLIUHIE8eitdQNWz64OtUomCb1ZYkyp2');

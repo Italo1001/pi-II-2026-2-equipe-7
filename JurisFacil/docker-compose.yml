@@ -15,9 +15,10 @@ services:
     container_name: pi2-backend
     environment:
       DB_HOST: database
-      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/pi2
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/JurisFacil
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET com pelo menos 32 caracteres}
     ports:
       - "8080:8080"
     depends_on:

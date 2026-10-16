@@ -1,21 +1,22 @@
 
 package backend.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import backend.dto.CategoriaComTermosDTO;
 import backend.exception.RecursoNaoEncontradoException;
 import backend.model.Categoria;
 import backend.model.Termo;
+import backend.repository.AreaDireitoRepository;
 import backend.repository.CategoriaRepository;
+import backend.repository.ExemploRepository;
 import backend.repository.TermoRepository;
 
 class DadosFixosApiTests {
@@ -23,7 +24,11 @@ class DadosFixosApiTests {
     @Test
     void listarTermosDeveRetornarTermosDoRepositorio() {
         TermoRepository repository = mock(TermoRepository.class);
-        TermoService termoService = new TermoService(repository);
+        TermoService termoService = new TermoService(
+            repository,
+            mock(CategoriaRepository.class),
+            mock(AreaDireitoRepository.class),
+            mock(ExemploRepository.class));
 
         Termo termo = new Termo(1L, "Dano Moral", "Definição de teste", null);
 
@@ -36,7 +41,11 @@ class DadosFixosApiTests {
     @Test
     void buscarTermoPorIdDeveRetornarTermoEncontrado() throws RecursoNaoEncontradoException {
         TermoRepository repository = mock(TermoRepository.class);
-        TermoService termoService = new TermoService(repository);
+        TermoService termoService = new TermoService(
+            repository,
+            mock(CategoriaRepository.class),
+            mock(AreaDireitoRepository.class),
+            mock(ExemploRepository.class));
 
         Termo termo = new Termo(1L, "Dano Moral", "Definição de teste", null);
 
@@ -48,13 +57,20 @@ class DadosFixosApiTests {
     @Test
     void buscarTermoInexistenteDeveLancarExcecao() {
         TermoRepository repository = mock(TermoRepository.class);
-        TermoService termoService = new TermoService(repository);
+        TermoService termoService = new TermoService(
+            repository,
+            mock(CategoriaRepository.class),
+            mock(AreaDireitoRepository.class),
+            mock(ExemploRepository.class));
 
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(
+        assertEquals(
             RecursoNaoEncontradoException.class,
-            () -> termoService.buscarPorId(99L)
+            assertThrows(
+                RecursoNaoEncontradoException.class,
+                () -> termoService.buscarPorId(99L)
+            ).getClass()
         );
     }
 
@@ -111,10 +127,12 @@ class DadosFixosApiTests {
 
         when(categoriaRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(
-            RecursoNaoEncontradoException.class,
-            () -> categoriaService.listarTermosPorCategoriaComDTO(99L)
+        assertEquals(
+            RecursoNaoEncontradoException.class, 
+            assertThrows(
+                RecursoNaoEncontradoException.class,
+                () -> categoriaService.listarTermosPorCategoriaComDTO(99L))
+            .getClass()
         );
     }
 }
-
