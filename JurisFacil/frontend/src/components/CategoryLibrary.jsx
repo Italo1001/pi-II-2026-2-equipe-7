@@ -1,4 +1,4 @@
-const categories = [
+const illustrations = [
     [
       'Direito Civil',
       'Relações, contratos e responsabilidades.',
@@ -21,7 +21,11 @@ const categories = [
     ],
   ];
   
-  export default function CategoryLibrary() {
+  export default function CategoryLibrary({ terms, onSelect }) {
+    const categories = [...new Set(terms.map(term => term.category))].sort().map(name => {
+      const illustration = illustrations.find(item => item[0] === name);
+      return [name, illustration?.[1] ?? 'Consulte os termos desta área.', illustration?.[2] ?? illustrations[0][2]];
+    });
     return (
       <section
         id="areas"
@@ -50,6 +54,7 @@ const categories = [
               <a
                 key={name}
                 href="#dicionario"
+                onClick={() => onSelect(name)}
                 className="group relative min-w-[82%] snap-start overflow-hidden sm:min-w-[45%] lg:min-w-[31%]"
               >
                 <img

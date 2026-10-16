@@ -46,6 +46,8 @@ export default function Footer() {
             Importante
           </p>
 
+          <Link to="/admin/login" className="mb-4 inline-flex min-h-10 items-center text-sm underline">Acesso administrativo</Link>
+
           <p className="text-sm leading-6 text-[#55585B]">
             Conteúdo educativo. Não substitui orientação jurídica profissional.
           </p>
