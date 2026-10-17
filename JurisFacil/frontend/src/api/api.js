@@ -35,3 +35,39 @@ export async function listarCategorias() {
 export async function listarTermosPCategoria(id) {
     return getJson(`${API_URL}/categorias/${id}/termos`);
 }
+
+export async function cadastrarTermo(dados) {
+  const resposta = await fetch(`${API_URL}/termos`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(dados),
+  });
+
+  if (!resposta.ok) {
+    throw new Error(`Erro ao cadastrar termo: ${resposta.status}`);
+  }
+
+  return resposta.json();
+}
+
+export async function editarTermo(id, dados) {
+  const resposta = await fetch(`${API_URL}/termos/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(dados),
+  });
+
+  if (!resposta.ok) {
+    throw new Error(`Erro ao editar termo: ${resposta.status}`);
+  }
+
+  return resposta.json();
+}
+
+export async function listarAreas() {
+  return getJson(`${API_URL}/areas`);
+}
