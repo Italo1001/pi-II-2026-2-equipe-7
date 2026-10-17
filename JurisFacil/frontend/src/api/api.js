@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080";
+const API_URL = "/api";
 
 async function getJson(url) {
   const resposta = await fetch(url);
