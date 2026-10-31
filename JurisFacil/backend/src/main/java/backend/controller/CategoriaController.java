@@ -2,6 +2,8 @@ package backend.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,17 +25,16 @@ public CategoriaController(CategoriaService categoriaService) {
     this.categoriaService = categoriaService;
 }
 
-// Rota 04
+// Rota 04 - Listar categorias
 @GetMapping
 public List<Categoria> listarCategorias() {
     return categoriaService.listarCategorias();
 }
 
-// Rota 05
+// Rota 05 - Filtrar por categoria
 @GetMapping("/{id}/termos")
-public CategoriaComTermosDTO listarTermosPorCategoria(
-        @PathVariable Long id) throws RecursoNaoEncontradoException {
-    return categoriaService.listarTermosPorCategoriaComDTO(id);
+public ResponseEntity<CategoriaComTermosDTO> listarTermosPorCategoria(@PathVariable Long id) throws RecursoNaoEncontradoException {
+    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
 }
 
 
