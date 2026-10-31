@@ -1,8 +1,14 @@
 package backend.service;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InOrder;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -10,17 +16,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
-
-import backend.dto.TermoRequest;
-import backend.dto.TermoResponse;
 import backend.dto.ExemploRequest;
 import backend.dto.ExemploResponse;
+import backend.dto.TermoRequest;
+import backend.dto.TermoResponse;
 import backend.exception.RecursoNaoEncontradoException;
 import backend.model.Categoria;
 import backend.model.Exemplo;
@@ -47,6 +46,7 @@ class TermoServiceTest {
     private final areaDireito area = new areaDireito();
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void configurarClassificacoes() {
         categoria.setId(3L);
         categoria.setNome("Direitos Fundamentais");
@@ -100,18 +100,23 @@ class TermoServiceTest {
     void criarTermoComCategoriaInexistenteDeveFalhar() {
         when(categoriaRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(
-                RecursoNaoEncontradoException.class,
-                () -> termoService.criar(new TermoRequest("Termo", "Significado", 99L, 4L)));
+        RecursoNaoEncontradoException excecao = assertThrows(
+            RecursoNaoEncontradoException.class, () -> termoService.criar(
+                new TermoRequest("Termo", "Significado", 99L, 4L)));
+
+        assertEquals("Categoria não encontrada com id 99", excecao.getMessage());
     }
 
     @Test
     void atualizarTermoInexistenteDeveFalhar() {
         when(termoRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(
+        RecursoNaoEncontradoException excecao = assertThrows(
                 RecursoNaoEncontradoException.class,
-                () -> termoService.atualizar(99L, new TermoRequest("Termo", "Significado", 3L, 4L)));
+                () -> termoService.atualizar(
+                        99L, new TermoRequest("Termo", "Significado", 3L, 4L)));
+
+        assertEquals("Termo não encontrado com id 99", excecao.getMessage());
     }
 
     @Test
@@ -131,7 +136,11 @@ class TermoServiceTest {
     void excluirTermoInexistenteDeveFalharSemApagarDados() {
         when(termoRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(RecursoNaoEncontradoException.class, () -> termoService.excluir(99L));
+        RecursoNaoEncontradoException excecao = assertThrows(
+                RecursoNaoEncontradoException.class,
+                () -> termoService.excluir(99L));
+
+        assertEquals("Termo não encontrado com id 99", excecao.getMessage());
         verifyNoInteractions(exemploRepository);
     }
 
@@ -161,9 +170,12 @@ class TermoServiceTest {
     void adicionarExemploParaTermoInexistenteDeveFalhar() {
         when(termoRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(
+        RecursoNaoEncontradoException excecao = assertThrows(
                 RecursoNaoEncontradoException.class,
                 () -> termoService.adicionarExemplo(99L, new ExemploRequest("Texto")));
+
+        assertEquals("Termo não encontrado com id 99", excecao.getMessage());
         verify(exemploRepository, never()).save(any(Exemplo.class));
     }
+
 }

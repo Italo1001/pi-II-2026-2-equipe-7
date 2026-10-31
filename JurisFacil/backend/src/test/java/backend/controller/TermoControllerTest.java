@@ -1,21 +1,20 @@
 package backend.controller;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.Mockito;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import backend.dto.ExemploResponse;
@@ -30,6 +29,7 @@ class TermoControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void configurar() {
         termoService = mock(TermoService.class);
         mockMvc = MockMvcBuilders.standaloneSetup(new TermoController(termoService))
@@ -167,4 +167,26 @@ class TermoControllerTest {
                                 """))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void atualizarExemploRetornaNotImplementedEnquantoAcessoNaoDisponivel() throws Exception {
+        mockMvc.perform(put("/termos/10/exemplos/25")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {"texto":"Texto atualizado."}
+                                        """))
+                .andExpect(status().isNotImplemented());
+        Mockito.verifyNoInteractions(termoService);
+    }
+
+    @Test
+    void atualizarExemploComTextoEmBrancoRetornaBadRequest() throws Exception {
+        mockMvc.perform(put("/termos/10/exemplos/25")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {"texto":" "}
+                                        """))
+                .andExpect(status().isBadRequest());
+    }
+
 }

@@ -52,32 +52,41 @@ public class TermoController {
         return termoService.buscarPorId(id);
     }
 
-    // Rota 0
+    // Rota 07 - Cadastrar termo
     @PostMapping
     public ResponseEntity<TermoResponse> criarTermo(@Valid @RequestBody TermoRequest request) throws RecursoNaoEncontradoException {
         return ResponseEntity.status(HttpStatus.CREATED).body(termoService.criar(request));
     }
 
-
-    // Rota 0
+    // Rota 08 - Editar termo
     @PutMapping("/{id}")
     public ResponseEntity<TermoResponse> atualizarTermo(@PathVariable Long id,@Valid @RequestBody TermoRequest request) throws RecursoNaoEncontradoException {
         return ResponseEntity.ok(termoService.atualizar(id, request));
     }
 
+    // Rota 09 - Excluir termo
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluirTermo(@PathVariable Long id)
-            throws RecursoNaoEncontradoException {
+    public ResponseEntity<Void> excluirTermo(@PathVariable Long id) throws RecursoNaoEncontradoException {
         termoService.excluir(id);
         return ResponseEntity.noContent().build();
     }
 
+    // Rota 10 - Cadastrar exemplo
     @PostMapping("/{id}/exemplos")
     public ResponseEntity<ExemploResponse> adicionarExemplo(
             @PathVariable Long id,
             @Valid @RequestBody ExemploRequest request) throws RecursoNaoEncontradoException {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(termoService.adicionarExemplo(id, request));
+    }
+
+    // Rota 13 - Editar exemplo
+    @PutMapping("/{id}/exemplos/{exemploId}")
+    public ResponseEntity<ExemploResponse> atualizarExemplo(
+            @PathVariable Long id,
+            @PathVariable Long exemploId,
+            @Valid @RequestBody ExemploRequest request) throws RecursoNaoEncontradoException {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
 }

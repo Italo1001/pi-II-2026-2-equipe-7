@@ -68,7 +68,9 @@ public class SecurityConfig {
                     "/termos/busca",
                     "/termos/{id}",
                     "/categorias",
-                    "/categorias/{id}/termos"
+                    "/categorias/{id}/termos",
+                    "/areas",
+                    "/areas/{id}/termos"
                 ).permitAll()
                 .anyRequest().hasRole("ADMIN")
             )
