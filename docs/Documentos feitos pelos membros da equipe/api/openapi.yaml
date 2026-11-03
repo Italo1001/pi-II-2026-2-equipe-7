@@ -1,0 +1,590 @@
+openapi: 3.0.3
+info:
+  title: JurisFácil API
+  version: 1.0.0
+  description: >-
+    Especificação da API conforme o contrato_api.md. Rotas administrativas
+    utilizam autenticação JWT Bearer; as demais rotas são públicas.
+tags:
+  - name: Termos
+  - name: Categorias
+  - name: Áreas
+  - name: Autenticação
+paths:
+  /termos:
+    get:
+      tags: [Termos]
+      summary: Listar termos
+      description: Lista termos jurídicos; paginação pode ser solicitada por query.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Lista de termos retornada.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [termos]
+                properties:
+                  termos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TermoResumo'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Termos]
+      summary: Cadastrar termo
+      description: Operação administrativa. Requer token JWT.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TermoRequest'
+      responses:
+        '201':
+          description: Termo cadastrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TermoAdministrativo'
+        '400':
+          description: Dados de entrada inválidos.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /termos/busca:
+    get:
+      tags: [Termos]
+      summary: Pesquisar termos
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Palavra ou expressão a pesquisar.
+          schema:
+            type: string
+          example: habeas
+      responses:
+        '200':
+          description: Resultados da pesquisa; uma lista vazia indica que nada foi encontrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resultados]
+                properties:
+                  resultados:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TermoResumo'
+                  mensagem:
+                    type: string
+                    description: Presente quando nenhum termo é encontrado.
+                    example: Nenhum termo encontrado.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /termos/{id}:
+    parameters:
+      - $ref: '#/components/parameters/TermoId'
+    get:
+      tags: [Termos]
+      summary: Consultar termo
+      responses:
+        '200':
+          description: Termo encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TermoDetalhe'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags: [Termos]
+      summary: Atualizar termo
+      description: Operação administrativa. Requer token JWT.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TermoRequest'
+      responses:
+        '200':
+          description: Termo atualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TermoAdministrativo'
+        '400':
+          description: Dados de entrada inválidos.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags: [Termos]
+      summary: Excluir termo
+      description: Operação administrativa. Requer token JWT.
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Termo excluído; sem corpo de resposta.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /termos/{id}/exemplos:
+    parameters:
+      - $ref: '#/components/parameters/TermoId'
+    post:
+      tags: [Termos]
+      summary: Cadastrar exemplo de uso
+      description: Operação administrativa. Requer token JWT.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExemploRequest'
+      responses:
+        '201':
+          description: Exemplo cadastrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exemplo'
+        '400':
+          description: O texto está ausente ou em branco.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: O termo não foi encontrado.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /termos/{id}/exemplos/{exemploId}:
+    parameters:
+      - $ref: '#/components/parameters/TermoId'
+      - name: exemploId
+        in: path
+        required: true
+        description: Identificador do exemplo.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    put:
+      tags: [Termos]
+      summary: Atualizar exemplo de uso
+      description: >-
+        Operação administrativa. Requer token JWT. O exemplo deve pertencer
+        ao termo informado.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExemploRequest'
+      responses:
+        '200':
+          description: Exemplo atualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exemplo'
+        '400':
+          description: O texto está ausente ou em branco.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Termo, exemplo ou vínculo entre eles não encontrado.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /categorias:
+    get:
+      tags: [Categorias]
+      summary: Listar categorias
+      responses:
+        '200':
+          description: Categorias retornadas.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [categorias]
+                properties:
+                  categorias:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Categoria'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /categorias/{id}/termos:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Identificador da categoria.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      tags: [Categorias]
+      summary: Listar termos de uma categoria
+      responses:
+        '200':
+          description: Termos da categoria retornados.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [categoria, termos]
+                properties:
+                  categoria:
+                    $ref: '#/components/schemas/Categoria'
+                  termos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TermoNome'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /areas:
+    get:
+      tags: [Áreas]
+      summary: Listar áreas do Direito
+      responses:
+        '200':
+          description: Áreas retornadas.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Area'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /areas/{id}/termos:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Identificador da área do Direito.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      tags: [Áreas]
+      summary: Listar termos de uma área
+      responses:
+        '200':
+          description: Área e seus termos retornados.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaComTermos'
+        '404':
+          description: Área não encontrada.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/login:
+    post:
+      tags: [Autenticação]
+      summary: Autenticar administrador
+      description: >-
+        Login administrativo. O token JWT expira após o período configurado
+        (uma hora por padrão).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Administrador autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Email ou senha inválidos ou ausentes.
+        '401':
+          description: Credenciais inválidas.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >-
+        Envie o token recebido no login no cabeçalho Authorization:
+        Bearer <token>. Aplicável somente às rotas administrativas.
+  parameters:
+    Page:
+      name: page
+      in: query
+      required: false
+      description: Número da página solicitada.
+      schema:
+        type: integer
+        minimum: 1
+      example: 1
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: Quantidade de termos por página.
+      schema:
+        type: integer
+        minimum: 1
+      example: 20
+    TermoId:
+      name: id
+      in: path
+      required: true
+      description: Identificador do termo.
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+  schemas:
+    TermoResumo:
+      type: object
+      required: [id, termo, categoria]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        termo:
+          type: string
+          example: Habeas Corpus
+        categoria:
+          type: string
+          example: Direito Constitucional
+    TermoNome:
+      type: object
+      required: [id, termo]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        termo:
+          type: string
+          example: Habeas Corpus
+    TermoDetalhe:
+      type: object
+      required: [id, termo, significado, categoria, exemplos]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        termo:
+          type: string
+          example: Habeas Corpus
+        significado:
+          type: string
+          example: Instrumento jurídico utilizado para proteger a liberdade de locomoção.
+        categoria:
+          $ref: '#/components/schemas/Categoria'
+        exemplos:
+          type: array
+          items:
+            type: string
+          example: [O advogado entrou com um habeas corpus.]
+    TermoRequest:
+      type: object
+      required: [termo, significado, categoriaId, areaId]
+      properties:
+        termo:
+          type: string
+          example: Habeas Data
+        significado:
+          type: string
+          example: Instrumento jurídico destinado a assegurar o conhecimento de informações relativas à pessoa.
+        categoriaId:
+          type: integer
+          format: int64
+          example: 1
+        areaId:
+          type: integer
+          format: int64
+          example: 4
+    TermoAdministrativo:
+      type: object
+      required: [id, termo, significado, categoriaId, areaId]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        termo:
+          type: string
+          example: Habeas Data
+        significado:
+          type: string
+          example: Instrumento jurídico destinado ao acesso e correção de informações pessoais.
+        categoriaId:
+          type: integer
+          format: int64
+          example: 1
+        areaId:
+          type: integer
+          format: int64
+          example: 4
+    Categoria:
+      type: object
+      required: [id, nome]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        nome:
+          type: string
+          example: Direito Constitucional
+    Area:
+      type: object
+      required: [id, nome]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        nome:
+          type: string
+          example: Direito Civil
+    AreaComTermos:
+      type: object
+      required: [id, nome, termos]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        nome:
+          type: string
+          example: Direito Civil
+        termos:
+          type: array
+          items:
+            $ref: '#/components/schemas/TermoDaArea'
+    TermoDaArea:
+      type: object
+      required: [id, nome, significado, area]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        nome:
+          type: string
+          example: Dano Moral
+        significado:
+          type: string
+          example: Lesão a direitos da personalidade que pode gerar obrigação de indenizar.
+        area:
+          type: string
+          example: Direito Civil
+    LoginRequest:
+      type: object
+      required: [email, senha]
+      properties:
+        email:
+          type: string
+          format: email
+          example: admin@jurisfacil.com
+        senha:
+          type: string
+          format: password
+          example: senha-do-administrador
+    LoginResponse:
+      type: object
+      required: [token, administrador]
+      properties:
+        token:
+          type: string
+          description: Token JWT para autenticar as operações administrativas.
+          example: jwt-token-exemplo
+        administrador:
+          $ref: '#/components/schemas/Administrador'
+    Administrador:
+      type: object
+      required: [id, nome, email]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        nome:
+          type: string
+          example: Administrador
+        email:
+          type: string
+          format: email
+          example: admin@jurisfacil.com
+    ExemploRequest:
+      type: object
+      required: [texto]
+      properties:
+        texto:
+          type: string
+          minLength: 1
+          example: O advogado solicitou habeas data para obter acesso às informações.
+    Exemplo:
+      type: object
+      required: [id, termoId, texto]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 25
+        termoId:
+          type: integer
+          format: int64
+          example: 10
+        texto:
+          type: string
+          example: O advogado solicitou habeas data para obter acesso às informações.
+  responses:
+    Unauthorized:
+      description: Token ausente ou inválido.
+    NotFound:
+      description: Recurso não encontrado.
+    InternalServerError:
+      description: Erro interno do servidor.
