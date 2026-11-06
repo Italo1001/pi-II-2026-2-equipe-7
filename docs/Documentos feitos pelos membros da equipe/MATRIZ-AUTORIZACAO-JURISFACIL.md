@@ -139,4 +139,4 @@ Os códigos HTTP acima são **comportamentos recomendados para teste**; eles dev
 4. [PR #113 — proposta de integração administrativa e operações de cadastro/edição](https://github.com/Italo1001/pi-II-2026-2-equipe-7/pull/113).
 5. [Issue #93 — autenticação e validações da área administrativa](https://github.com/Italo1001/pi-II-2026-2-equipe-7/issues/93).
 
-**Antes de considerar a matriz definitiva:** confirmar os caminhos atuais do frontend, os controllers do backend e os testes de autenticação; atualizar as operações administrativas ainda sem endereço confirmado.
+
