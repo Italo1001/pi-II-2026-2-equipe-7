@@ -13,6 +13,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.Instant;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
 @SpringBootTest(properties = {
 		"app.jwt.secret=integration-test-secret-with-at-least-32-bytes",
 		"spring.datasource.url=jdbc:h2:mem:jurisfacil-test;DB_CLOSE_DELAY=-1",
@@ -25,6 +38,9 @@ class BackendApplicationTests {
 
 	@Autowired
 	private WebApplicationContext applicationContext;
+
+	@Autowired
+	private JwtEncoder jwtEncoder;
 
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;
@@ -64,5 +80,64 @@ class BackendApplicationTests {
 								"""))
 				.andExpect(status().isUnauthorized());
 	}
+	private String gerarToken(String perfil) {
+    Instant agora = Instant.now();
+
+    JwtClaimsSet claims = JwtClaimsSet.builder()
+            .issuer("jurisfacil")
+            .issuedAt(agora)
+            .expiresAt(agora.plusSeconds(300))
+            .subject("999")
+            .claim("roles", List.of(perfil))
+            .build();
+
+    return jwtEncoder.encode(
+            JwtEncoderParameters.from(
+                    JwsHeader.with(MacAlgorithm.HS256).build(),
+                    claims
+            )
+    ).getTokenValue();
+		}
+
+		@Test
+		void listarTermosSemAutenticacaoRetornaOk() throws Exception {
+			mockMvc.perform(get("/termos"))
+					.andExpect(status().isOk());
+		}
+
+		@Test
+		void cadastrarTermoSemAutenticacaoRetornaUnauthorized() throws Exception {
+			mockMvc.perform(post("/termos")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content("{}"))
+					.andExpect(status().isUnauthorized());
+		}
+
+		@Test
+		void cadastrarTermoComTokenSemPerfilAdminRetornaForbidden() throws Exception {
+			String token = gerarToken("VISITANTE");
+
+			mockMvc.perform(post("/termos")
+							.header("Authorization", "Bearer " + token)
+							.contentType(MediaType.APPLICATION_JSON)
+							.content("{}"))
+					.andExpect(status().isForbidden());
+		}
+
+		@Test
+		void excluirTermoComTokenAdminAcessaOperacaoProtegida() throws Exception {
+			String token = gerarToken("ADMIN");
+
+			mockMvc.perform(delete("/termos/999999")
+							.header("Authorization", "Bearer " + token))
+					.andExpect(status().isNotFound());
+		}
+
+		@Test
+		void acessarRotaProtegidaComTokenInvalidoRetornaUnauthorized() throws Exception {
+			mockMvc.perform(delete("/termos/999999")
+							.header("Authorization", "Bearer token-invalido"))
+					.andExpect(status().isUnauthorized());
+		}
 
 }
