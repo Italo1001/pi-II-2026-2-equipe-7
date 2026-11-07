@@ -1,28 +1,44 @@
 import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff, LockKeyhole } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { validateLogin } from '../utils/validateLogin';
+import { realizarLogin } from '../api/api';
 
 export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
+  const navigate = useNavigate();
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const nextErrors = validateLogin(form.get('email'), form.get('password'));
+    const email = form.get('email');
+    const password = form.get('password');
+
+    const nextErrors = validateLogin(email, password);
     setErrors(nextErrors);
     setMessage('');
+
     if (nextErrors.email) { emailRef.current.focus(); return; }
     if (nextErrors.password) { passwordRef.current.focus(); return; }
-    // Etapa visual: conectar à autenticação real em uma próxima entrega.
-    // Não enviar, registrar ou persistir credenciais enquanto a API não existir.
-    setMessage('Não foi possível entrar. Tente novamente mais tarde.');
+
+    try {
+      setLoading(true);
+      
+      await realizarLogin(email, password);
+
+      navigate('/admin');
+    } catch (err) {
+      setMessage(err.message || 'Não foi possível entrar. Verifique suas credenciais.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return <>
@@ -35,7 +51,6 @@ export default function AdminLogin() {
         <p className="text-xs font-semibold uppercase tracking-[.25em] text-[#8C7356]">JurisFácil · Administração</p>
         <h1 className="mt-6 max-w-xl font-serif text-5xl leading-tight sm:text-7xl">Conhecimento claro começa com cuidado.</h1>
         <p className="mt-7 max-w-md text-lg leading-8 text-[#55585B]">Um espaço para organizar os termos, as explicações e os exemplos que aproximam as pessoas do Direito.</p>
-       {/* <p className="mt-8 max-w-md border-l-2 border-[#8C7356] pl-5 text-sm leading-6 text-[#55585B]">A consulta ao dicionário é pública. Este acesso é exclusivo para administradores autorizados.</p>*/} 
       </section>
 
       <section aria-labelledby="login-title" className="w-full max-w-lg border border-[#D4D1CC] bg-white/50 p-6 sm:p-10 lg:justify-self-end">
@@ -63,7 +78,9 @@ export default function AdminLogin() {
             {errors.password && <p id="password-error" className="mt-2 text-sm text-red-800">{errors.password}</p>}
           </div>
           {message && <p role="status" className="border-l-2 border-[#8C7356] bg-[#EEEAE4] p-4 text-sm leading-6">{message}</p>}
-          <button type="submit" className="min-h-12 w-full bg-[#1A1C1E] px-6 py-3 text-white hover:bg-[#333537]">Entrar</button>
+          <button type="submit" disabled={loading} className="min-h-12 w-full bg-[#1A1C1E] px-6 py-3 text-white hover:bg-[#333537] disabled:opacity-50">
+            {loading ? 'Entrando...' : 'Entrar'}
+          </button>
           <p className="text-sm leading-6 text-[#55585B]">Precisa de acesso? Entre em contato com a equipe responsável pelo projeto.</p>
         </form>
 

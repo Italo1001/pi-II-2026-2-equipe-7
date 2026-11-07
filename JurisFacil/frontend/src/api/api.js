@@ -1,7 +1,22 @@
 const API_URL = "/api";
 
+function getAuthHeaders() {
+  const token = localStorage.getItem('token');
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  return headers;
+}
+
 async function getJson(url) {
-  const resposta = await fetch(url);
+  const resposta = await fetch(url, {
+    headers: getAuthHeaders(),
+  });
 
   if (!resposta.ok) {
     const error = new Error(
@@ -13,6 +28,32 @@ async function getJson(url) {
   }
 
   return await resposta.json();
+}
+
+export async function realizarLogin(email, senha) {
+  const resposta = await fetch(`${API_URL}/auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, senha }),
+  });
+
+  if (!resposta.ok) {
+    const errorData = await resposta.json().catch(() => ({}));
+    throw new Error(errorData.message || `Erro ao fazer login (${resposta.status})`);
+  }
+
+  const dados = await resposta.json();
+
+  if (dados.token) {
+    localStorage.setItem('token', dados.token);
+    if (dados.administrador) {
+      localStorage.setItem('user', JSON.stringify(dados.administrador));
+    }
+  }
+
+  return dados;
 }
 
 export async function listarTermos() {
@@ -39,9 +80,7 @@ export async function listarTermosPCategoria(id) {
 export async function cadastrarTermo(dados) {
   const resposta = await fetch(`${API_URL}/termos`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(dados),
   });
 
@@ -55,9 +94,7 @@ export async function cadastrarTermo(dados) {
 export async function editarTermo(id, dados) {
   const resposta = await fetch(`${API_URL}/termos/${id}`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(dados),
   });
 
