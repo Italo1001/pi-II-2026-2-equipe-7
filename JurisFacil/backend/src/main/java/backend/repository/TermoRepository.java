@@ -9,8 +9,14 @@ import org.springframework.data.repository.query.Param;
 import backend.model.Termo;
 
 public interface TermoRepository extends JpaRepository<Termo, Long> {
+
     List<Termo> findByNomeContainingIgnoreCase(String busca);
 
     @Query(value = "SELECT * FROM termo WHERE categoria_id = :categoriaId", nativeQuery = true)
     List<Termo> findByCategoriaId(@Param("categoriaId") Long categoriaId);
+
+    List<Termo> findByArea_Id(Long areaId);
+
+    List<Termo> findByCategoriaIdAndArea_Id(Long categoriaId, Long areaId);
+
 }
