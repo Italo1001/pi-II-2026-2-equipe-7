@@ -388,9 +388,4 @@ Esta versão mantém os vínculos já presentes na matriz da Sprint 2 e acrescen
 10. [Issue #150 — critérios da entrega de documentação](https://github.com/Italo1001/pi-II-2026-2-equipe-7/issues/150).
 11. [Sprint 4 — Requisitos Essenciais](https://github.com/Italo1001/pi-II-2026-2-equipe-7/milestone/5).
 12. [PR #113 — integração administrativa ainda com pendências](https://github.com/Italo1001/pi-II-2026-2-equipe-7/pull/113).
-13. **Documento de Requisitos Funcionais e Não Funcionais**, versão detalhada, disponível nos arquivos de trabalho do projeto (base dos critérios adicionais e RN01–RN06).
-14. **Matriz de Rastreabilidade — Sprint 2**, versão anterior disponível nos arquivos de trabalho (base da estrutura UC01–UC10 e dos testes iniciais).
 
----
-
-**Situação desta revisão:** matriz reorganizada e Gherkin ampliado; **não é um registro de implementação/homologação integral de RFs da Sprint 4**. Após incorporar as entregas finais e os resultados de QA, atualizar esta mesma matriz e preservar seu nome/caminho original no repositório.
