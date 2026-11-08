@@ -1,3 +1,5 @@
+import RequireAdmin from './auth/RequireAdmin';
+import AccessDenied from './pages/AccessDenied';
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 
@@ -17,13 +19,17 @@ export default function App() {
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, [pathname]);
   return (
     <Routes>
+      <Route element={<RequireAdmin />}>
       <Route path="/admin/previa" element={<AdminLayout />}>
         <Route index element={<AdminOverview />} />
         <Route path="termos" element={<AdminTerms />} />
-        <Route path="termos/novo" element={<AdminTermForm />} />
+        <Route path="termos/novo" element={<AdminTermForm key="new" />} />
+        <Route path="termos/:id/editar" element={<AdminTermForm key="edit" />} />
         <Route path="categorias" element={<AdminTaxonomy type="categorias" />} />
         <Route path="areas" element={<AdminTaxonomy type="areas" />} />
       </Route>
+      </Route>
+      <Route path="/acesso-negado" element={<AccessDenied />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/" element={<Home />} />
       <Route path="/termo/:id" element={<TermDetail />} />

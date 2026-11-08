@@ -27,8 +27,8 @@ export default function AdminOverview() {
 
   const stats = [
     ['Termos', termos.length, BookOpen],
-    ['Áreas', categorias.length, Layers],
-    ['Exemplos', termos.length, FileText],
+    ['Categorias', categorias.length, Layers],
+    ['Exemplos', exemplos, FileText],
   ];
 
   return (
