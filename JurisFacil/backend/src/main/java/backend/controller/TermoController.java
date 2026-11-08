@@ -86,7 +86,7 @@ public class TermoController {
             @PathVariable Long id,
             @PathVariable Long exemploId,
             @Valid @RequestBody ExemploRequest request) throws RecursoNaoEncontradoException {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        return ResponseEntity.ok(termoService.atualizarExemplo(id, exemploId, request));
     }
 
 }
