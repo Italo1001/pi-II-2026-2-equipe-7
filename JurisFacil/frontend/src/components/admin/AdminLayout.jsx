@@ -1,4 +1,6 @@
-import { NavLink, Link, Outlet } from 'react-router-dom';
+import { useSession } from '../../auth/useSession';
+import { clearSession } from '../../auth/session';
+import { NavLink, Link, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, BookOpen, FolderOpen, Layers, ArrowLeft, Plus } from 'lucide-react';
 
 const navigation = [
@@ -8,6 +10,9 @@ const navigation = [
   { to: '/admin/previa/areas', label: 'Áreas do Direito', icon: Layers },
 ];
 export default function AdminLayout() {
+  const status = useSession();
+  const navigate = useNavigate();
+  if (status !== 'admin') return null;
   return <div className="min-h-screen bg-[#F9F8F6] text-[#1A1C1E] lg:grid lg:grid-cols-[250px_1fr]">
     <aside className="border-b border-[#D4D1CC] bg-[#EEEAE4] p-6 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r">
       <Link to="/" className="font-serif text-3xl">Juris<span className="text-[#8C7356]">Fácil</span></Link>
@@ -23,7 +28,8 @@ export default function AdminLayout() {
     </aside>
     <div className="min-w-0">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[#D4D1CC] px-6 py-5 lg:px-10">
-        <span className="text-sm font-semibold">Painel de conteúdo</span>
+        <span className="text-sm font-semibold">Painel de conteúdo · Administrador</span>
+        <button className="min-h-10 px-4 text-sm underline" onClick={() => { clearSession(); navigate('/admin/login', { replace: true }); }}>Sair</button>
       </header>
       <main id="admin-content" className="mx-auto max-w-7xl px-6 py-10 lg:px-10"><Outlet /></main>
     </div>

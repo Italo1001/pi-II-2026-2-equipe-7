@@ -15,9 +15,6 @@ export default function AdminTaxonomy({ type }) {
   const [erro, setErro] = useState('');
 
   useEffect(() => {
-    setLoading(true);
-    setErro('');
-
     Promise.all([listarTermos(), listarCategorias()])
       .then(([listaTermos, listaCategorias]) => {
         setTermos(listaTermos);
