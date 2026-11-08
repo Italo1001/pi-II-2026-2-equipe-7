@@ -169,14 +169,33 @@ class TermoControllerTest {
     }
 
     @Test
-    void atualizarExemploRetornaNotImplementedEnquantoAcessoNaoDisponivel() throws Exception {
+    void atualizarExemploRetornaOkEExemploAtualizado() throws Exception {
+        when(termoService.atualizarExemplo(eq(10L), eq(25L), any())).thenReturn(
+                new ExemploResponse(25L, 10L, "Texto atualizado."));
+
         mockMvc.perform(put("/termos/10/exemplos/25")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {"texto":"Texto atualizado."}
                                         """))
-                .andExpect(status().isNotImplemented());
-        Mockito.verifyNoInteractions(termoService);
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(25))
+                .andExpect(jsonPath("$.termoId").value(10))
+                .andExpect(jsonPath("$.texto").value("Texto atualizado."));
+    }
+
+    @Test
+    void atualizarExemploInexistenteOuDeOutroTermoRetornaNotFound() throws Exception {
+        when(termoService.atualizarExemplo(eq(10L), eq(25L), any()))
+                .thenThrow(new RecursoNaoEncontradoException(
+                        "Exemplo não encontrado para o termo informado"));
+
+        mockMvc.perform(put("/termos/10/exemplos/25")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {"texto":"Texto atualizado."}
+                                        """))
+                .andExpect(status().isNotFound());
     }
 
     @Test
