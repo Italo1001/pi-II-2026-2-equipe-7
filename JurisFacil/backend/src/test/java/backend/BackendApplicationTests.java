@@ -60,9 +60,9 @@ class BackendApplicationTests {
 	}
 
 	@Test
-	void listarAreasSemAutenticacaoRetornaNotImplementedEnquantoAcessoNaoDisponivel() throws Exception {
+	void listarAreasSemAutenticacaoRetornaOk() throws Exception {
 		mockMvc.perform(get("/areas"))
-				.andExpect(status().isNotImplemented());
+				.andExpect(status().isOk());
 	}
 
 	@Test
