@@ -1,5 +1,8 @@
 package backend.controller;
 
+import java.util.List;
+import backend.model.areaDireito;
+import backend.repository.AreaDireitoRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,11 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/areas")
 public class AreaDireitoController {
+    private final AreaDireitoRepository areaDireitoRepository;
+
+    public AreaDireitoController(AreaDireitoRepository areaDireitoRepository) {
+        this.areaDireitoRepository = areaDireitoRepository;
+    }
+
 
     // Rota 11 - Listar áreas
     @GetMapping
-    public ResponseEntity<Void> listarAreas() {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    public List<areaDireito> listarAreas() {
+        return areaDireitoRepository.findAll();
     }
 
     // Rota 12 - Filtrar por área
