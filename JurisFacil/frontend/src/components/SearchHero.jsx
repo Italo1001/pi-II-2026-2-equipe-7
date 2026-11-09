@@ -1,3 +1,4 @@
+import { requestMessages } from '../utils/requestMessages';
 import { searchTerms } from '../utils/search';
 import { Search, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -76,8 +77,8 @@ export default function SearchHero({ terms, query, setQuery }) {
                   </Link>
                 ))
               ) : (
-                <p className="p-5 text-[#696969]">
-                  Nenhum termo encontrado.
+                <p role="status" className="p-5 text-[#696969]">
+                  {requestMessages.emptySearch}
                 </p>
               )}
             </div>

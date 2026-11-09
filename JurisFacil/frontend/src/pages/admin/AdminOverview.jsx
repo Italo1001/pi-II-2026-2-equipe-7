@@ -1,34 +1,23 @@
-import { useEffect, useState } from 'react';
+import useApiResource from '../../hooks/useApiResource';
+import RequestState from '../../components/RequestState';
+import { requestMessages } from '../../utils/requestMessages';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, BookOpen, Layers, FileText } from 'lucide-react';
-import { listarTermos, listarCategorias } from '../../api/api';
+import { listarTermos, listarCategorias, listarAreas } from '../../api/api';
+
+async function loadOverview(options) {
+  const [termos, categorias, areas] = await Promise.all([
+    listarTermos(options), listarCategorias(options), listarAreas(options),
+  ]);
+  return { termos, categorias, areas };
+}
 
 export default function AdminOverview() {
-  const [termos, setTermos] = useState([]);
-  const [categorias, setCategorias] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    Promise.all([listarTermos(), listarCategorias()])
-      .then(([termosData, categoriasData]) => {
-        setTermos(termosData);
-        setCategorias(categoriasData);
-      })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const exemplos = termos.reduce((total, termo) => {
-    const lista = termo.exemplos ?? termo.exemplo ?? [];
-    if (Array.isArray(lista)) return total + lista.length;
-    return total + (lista ? 1 : 0);
-  }, 0);
-
+  const { data, loading, error, retry } = useApiResource(loadOverview);
   const stats = [
-    ['Termos', termos.length, BookOpen],
-    ['Áreas', categorias.length, Layers],
-    ['Exemplos', termos.length, FileText],
+    ['Termos', data?.termos.length ?? 0, BookOpen],
+    ['Áreas', data?.areas.length ?? 0, Layers],
+    ['Categorias', data?.categorias.length ?? 0, FileText],
   ];
 
   return (
@@ -43,12 +32,8 @@ export default function AdminOverview() {
         Um ponto de partida para cuidar dos termos, das explicações e dos exemplos do JurisFácil.
       </p>
 
-      {loading ? (
-        <p className="mt-8">Carregando dados...</p>
-      ) : error ? (
-        <p role="alert" className="mt-8">
-          Não foi possível carregar os dados do painel.
-        </p>
+      {loading || error ? (
+        <RequestState loading={loading} loadingMessage={requestMessages.loadingData} error={error} onRetry={retry} />
       ) : (
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {stats.map(([label, count, Icon]) => (
@@ -64,7 +49,7 @@ export default function AdminOverview() {
       <section className="mt-10 border border-[#D4D1CC] p-6 sm:p-8">
         <h2 className="font-serif text-3xl">Por onde começar?</h2>
         <p className="mt-3 leading-7 text-[#55585B]">
-          Organize as categorias e áreas, cadastre um termo e acrescente uma explicação simples e exemplos de uso.
+          Consulte as categorias e áreas e organize os termos do dicionário.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link

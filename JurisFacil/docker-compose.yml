@@ -19,6 +19,7 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET com pelo menos 32 caracteres}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-PT1H}
     ports:
       - "8080:8080"
     depends_on:

@@ -1,110 +1,68 @@
-const API_URL = "/api";
+import { endSession, getAccessToken, getSessionSnapshot } from '../auth/session.js';
 
-function getAuthHeaders() {
-  const token = localStorage.getItem('token');
-  const headers = {
-    'Content-Type': 'application/json',
-  };
+const API_URL = '/api';
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+export class ApiError extends Error {
+  constructor(status, code) {
+    super(`Falha na API: ${code} (${status})`);
+    this.name = 'ApiError';
+    this.status = status;
+    this.code = code;
   }
-
-  return headers;
 }
 
-async function getJson(url) {
-  const resposta = await fetch(url, {
-    headers: getAuthHeaders(),
-  });
-
-  if (!resposta.ok) {
-    const error = new Error(
-      `Falha na API (${resposta.status}): ${resposta.statusText}`
-    );
-
-    error.status = resposta.status;
-    throw error;
+async function requestJson(path, { signal, method = 'GET', data, authenticated = false } = {}) {
+  const token = authenticated ? getAccessToken() : null;
+  if (authenticated && !token) {
+    throw new ApiError(401, getSessionSnapshot().reason === 'expired' ? 'SESSION_EXPIRED' : 'AUTH_REQUIRED');
   }
-
-  return await resposta.json();
-}
-
-export async function realizarLogin(email, senha) {
-  const resposta = await fetch(`${API_URL}/auth/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, senha }),
-  });
-
-  if (!resposta.ok) {
-    const errorData = await resposta.json().catch(() => ({}));
-    throw new Error(errorData.message || `Erro ao fazer login (${resposta.status})`);
+  const headers = { Accept: 'application/json' };
+  if (data !== undefined) headers['Content-Type'] = 'application/json';
+  if (token) headers.Authorization = `Bearer ${token}`;
+  let resposta;
+  try {
+    resposta = await fetch(`${API_URL}${path}`, {
+      signal, method, headers,
+      body: data === undefined ? undefined : JSON.stringify(data),
+    });
+  } catch (error) {
+    if (error.name === 'AbortError') throw error;
+    throw new ApiError(0, 'NETWORK');
   }
-
-  const dados = await resposta.json();
-
-  if (dados.token) {
-    localStorage.setItem('token', dados.token);
-    if (dados.administrador) {
-      localStorage.setItem('user', JSON.stringify(dados.administrador));
-    }
+  if (resposta.status === 401 && token) {
+    // Uma resposta atrasada da sessão anterior não encerra um novo login.
+    endSession('invalid', token);
+    throw new ApiError(401, 'SESSION_INVALID');
   }
-
-  return dados;
-}
-
-export async function listarTermos() {
-    return getJson(`${API_URL}/termos`);
-}
-
-export async function buscarTermo(id) {
-    return getJson(`${API_URL}/termos/${id}`);
-}
-
-export async function pesquisarTermo(q) {
-    const params = new URLSearchParams({ q });
-    return getJson(`${API_URL}/termos/busca?${params}`);
-}
-
-export async function listarCategorias() {
-    return getJson(`${API_URL}/categorias`);
-}
-
-export async function listarTermosPCategoria(id) {
-    return getJson(`${API_URL}/categorias/${id}/termos`);
-}
-
-export async function cadastrarTermo(dados) {
-  const resposta = await fetch(`${API_URL}/termos`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(dados),
-  });
-
-  if (!resposta.ok) {
-    throw new Error(`Erro ao cadastrar termo: ${resposta.status}`);
+  if (!resposta.ok) throw new ApiError(resposta.status, 'HTTP');
+  if (resposta.status === 204) return null;
+  try {
+    return await resposta.json();
+  } catch (error) {
+    if (error.name === 'AbortError') throw error;
+    throw new ApiError(resposta.status, 'INVALID_RESPONSE');
   }
-
-  return resposta.json();
 }
 
-export async function editarTermo(id, dados) {
-  const resposta = await fetch(`${API_URL}/termos/${id}`, {
-    method: 'PUT',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(dados),
-  });
-
-  if (!resposta.ok) {
-    throw new Error(`Erro ao editar termo: ${resposta.status}`);
+async function requestList(path, options) {
+  const data = await requestJson(path, options);
+  if (!Array.isArray(data) || data.some(item => !item || item.id == null || typeof item.nome !== 'string')) {
+    throw new ApiError(200, 'INVALID_RESPONSE');
   }
-
-  return resposta.json();
+  return data;
 }
 
-export async function listarAreas() {
-  return getJson(`${API_URL}/areas`);
-}
+export const listarTermos = (options) => requestList('/termos', options);
+export const buscarTermo = (id, options) => requestJson(`/termos/${encodeURIComponent(id)}`, options);
+export const pesquisarTermo = (q, options) => requestList(`/termos/busca?${new URLSearchParams({ q })}`, options);
+export const listarCategorias = (options) => requestList('/categorias', options);
+export const listarTermosPCategoria = (id, options) => requestJson(`/categorias/${encodeURIComponent(id)}/termos`, options);
+export const listarAreas = (options) => requestList('/areas', options);
+export const cadastrarTermo = (dados, options) => requestJson('/termos', { ...options, authenticated: true, method: 'POST', data: dados });
+export const editarTermo = (id, dados, options) => requestJson(`/termos/${encodeURIComponent(id)}`, { ...options, authenticated: true, method: 'PUT', data: dados });
+
+export const autenticar = (email, senha, options) => requestJson('/auth/login', {
+  ...options, authenticated: false, method: 'POST', data: { email: email.trim(), senha },
+});
+
+export const realizarLogin = autenticar;
