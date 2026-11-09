@@ -1,6 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
+import RequestState from './RequestState';
+import { requestMessages } from '../utils/requestMessages';
 import { pesquisarTermo } from '../api/api';
 
 export default function HeaderSearch() {
@@ -27,17 +29,17 @@ export default function HeaderSearch() {
   useEffect(() => {
     if (!search) return;
 
-    let active = true;
+    const controller = new AbortController();
 
     const timer = setTimeout(async () => {
       try {
-        const data = await pesquisarTermo(search);
+        const data = await pesquisarTermo(search, { signal: controller.signal });
 
-        if (!Array.isArray(data)) {
+        if (!Array.isArray(data) || data.some(term => !term || term.id == null || typeof term.nome !== 'string')) {
           throw new Error('Resposta inválida da API.');
         }
 
-        if (active) {
+        if (!controller.signal.aborted) {
           setResponse({
             search,
             attempt,
@@ -45,20 +47,20 @@ export default function HeaderSearch() {
             error: '',
           });
         }
-      } catch {
-        if (active) {
+      } catch (error) {
+        if (!controller.signal.aborted) {
           setResponse({
             search,
             attempt,
             results: [],
-            error: 'Não foi possível pesquisar. Tente novamente.',
+            error,
           });
         }
       }
     }, 300);
 
     return () => {
-      active = false;
+      controller.abort();
       clearTimeout(timer);
     };
   }, [search, attempt]);
@@ -152,7 +154,7 @@ export default function HeaderSearch() {
           <div className="flex items-center justify-between border-b border-[#D4D1CC] px-4">
             <p role="status" className="text-xs text-[#55585B]">
               {loading
-                ? 'Pesquisando…'
+                ? requestMessages.searching
                 : error
                   ? 'Busca indisponível'
                   : `${results.length} termo(s) encontrado(s)`}
@@ -168,18 +170,9 @@ export default function HeaderSearch() {
             </button>
           </div>
 
-          {!loading && error && (
-            <div role="alert" className="p-5 text-sm text-[#55585B]">
-              <p>{error}</p>
-              <button
-                type="button"
-                onClick={() => setAttempt((value) => value + 1)}
-                className="mt-3 min-h-12 underline"
-              >
-                Tentar novamente
-              </button>
-            </div>
-          )}
+          {!loading && error && <div className="px-5 text-sm">
+            <RequestState error={error} onRetry={() => setAttempt(value => value + 1)} />
+          </div>}
 
           {!loading && !error && (
             results.length > 0 ? (
@@ -205,8 +198,8 @@ export default function HeaderSearch() {
                 ))}
               </ul>
             ) : (
-              <p className="p-5 text-sm text-[#55585B]">
-                Nenhum termo encontrado. Tente outra palavra.
+              <p role="status" className="p-5 text-sm text-[#55585B]">
+                {requestMessages.emptySearch}
               </p>
             )
           )}

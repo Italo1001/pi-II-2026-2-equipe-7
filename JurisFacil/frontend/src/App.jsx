@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 
+import RequireAdmin from './components/admin/RequireAdmin';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminOverview from './pages/admin/AdminOverview';
 import AdminTerms from './pages/admin/AdminTerms';
@@ -17,7 +18,7 @@ export default function App() {
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, [pathname]);
   return (
     <Routes>
-      <Route path="/admin/previa" element={<AdminLayout />}>
+      <Route path="/admin/previa" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
         <Route index element={<AdminOverview />} />
         <Route path="termos" element={<AdminTerms />} />
         <Route path="termos/novo" element={<AdminTermForm />} />

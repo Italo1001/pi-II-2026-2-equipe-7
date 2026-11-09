@@ -1,19 +1,14 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import useApiResource from '../../hooks/useApiResource';
+import RequestState from '../../components/RequestState';
+import { requestMessages } from '../../utils/requestMessages';
 import { listarTermos } from '../../api/api';
 
 export default function AdminTerms() {
   const [query, setQuery] = useState('');
-  const [allTerms, setAllTerms] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    listarTermos()
-      .then(setAllTerms)
-      .catch(() => setError('Não foi possível carregar os termos.'))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data, loading, error, retry } = useApiResource(listarTermos);
+  const allTerms = data ?? [];
 
   const terms = allTerms.filter(term =>
     `${term.nome ?? term.termo ?? ''} ${term.significado ?? term.definicao ?? ''}`
@@ -27,11 +22,9 @@ export default function AdminTerms() {
     </div>
     <label htmlFor="admin-term-search" className="mb-2 mt-8 block text-sm font-semibold">Pesquisar na lista</label>
     <input id="admin-term-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Nome ou explicação do termo" className="min-h-12 w-full max-w-lg border border-[#D4D1CC] bg-white px-4" />
-    {loading ? (
-  <p className="my-4">Carregando termos...</p>
-) : error ? (
-  <p role="alert" className="my-4">{error}</p>
-) : (
+    {loading || error ? (
+      <RequestState loading={loading} loadingMessage={requestMessages.loadingTerms} error={error} onRetry={retry} />
+    ) : (
   <>
     <p role="status" className="my-4 text-sm text-[#696969]">
       {terms.length} termo(s) encontrado(s)
@@ -50,12 +43,6 @@ export default function AdminTerms() {
           <tbody>
             {terms.map(term => {
               const nome = term.nome ?? term.termo;
-              const slug = term.slug ?? nome?.toLowerCase()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-|-$/g, '');
-
               return (
                 <tr key={term.id} className="border-t border-[#D4D1CC]">
                   <th scope="row" className="p-4 font-medium">{nome}</th>
@@ -65,7 +52,7 @@ export default function AdminTerms() {
                   <td className="p-4">
                     <Link
                       className="inline-flex min-h-10 items-center underline"
-                      to={`/termo/${slug}`}
+                      to={`/termo/${term.id}`}
                     >
                       Ver termo
                       <span className="sr-only"> {nome}</span>
@@ -78,8 +65,8 @@ export default function AdminTerms() {
         </table>
       </div>
     ) : (
-      <p className="border border-dashed border-[#D4D1CC] p-8">
-        Nenhum termo encontrado. Tente outra palavra.
+      <p role="status" className="border border-dashed border-[#D4D1CC] p-8">
+        {allTerms.length === 0 ? requestMessages.emptyTerms : requestMessages.emptySearch}
       </p>
     )}
   </>

@@ -1,73 +1,66 @@
-const API_URL = "/api";
+import { endSession, getAccessToken, getSessionSnapshot } from '../auth/session.js';
 
-async function getJson(url) {
-  const resposta = await fetch(url);
+const API_URL = '/api';
 
-  if (!resposta.ok) {
-    const error = new Error(
-      `Falha na API (${resposta.status}): ${resposta.statusText}`
-    );
-
-    error.status = resposta.status;
-    throw error;
+export class ApiError extends Error {
+  constructor(status, code) {
+    super(`Falha na API: ${code} (${status})`);
+    this.name = 'ApiError';
+    this.status = status;
+    this.code = code;
   }
-
-  return await resposta.json();
 }
 
-export async function listarTermos() {
-    return getJson(`${API_URL}/termos`);
-}
-
-export async function buscarTermo(id) {
-    return getJson(`${API_URL}/termos/${id}`);
-}
-
-export async function pesquisarTermo(q) {
-    const params = new URLSearchParams({ q });
-    return getJson(`${API_URL}/termos/busca?${params}`);
-}
-
-export async function listarCategorias() {
-    return getJson(`${API_URL}/categorias`);
-}
-
-export async function listarTermosPCategoria(id) {
-    return getJson(`${API_URL}/categorias/${id}/termos`);
-}
-
-export async function cadastrarTermo(dados) {
-  const resposta = await fetch(`${API_URL}/termos`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(dados),
-  });
-
-  if (!resposta.ok) {
-    throw new Error(`Erro ao cadastrar termo: ${resposta.status}`);
+async function requestJson(path, { signal, method = 'GET', data, authenticated = false } = {}) {
+  const token = authenticated ? getAccessToken() : null;
+  if (authenticated && !token) {
+    throw new ApiError(401, getSessionSnapshot().reason === 'expired' ? 'SESSION_EXPIRED' : 'AUTH_REQUIRED');
   }
-
-  return resposta.json();
-}
-
-export async function editarTermo(id, dados) {
-  const resposta = await fetch(`${API_URL}/termos/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(dados),
-  });
-
-  if (!resposta.ok) {
-    throw new Error(`Erro ao editar termo: ${resposta.status}`);
+  const headers = { Accept: 'application/json' };
+  if (data !== undefined) headers['Content-Type'] = 'application/json';
+  if (token) headers.Authorization = `Bearer ${token}`;
+  let resposta;
+  try {
+    resposta = await fetch(`${API_URL}${path}`, {
+      signal, method, headers,
+      body: data === undefined ? undefined : JSON.stringify(data),
+    });
+  } catch (error) {
+    if (error.name === 'AbortError') throw error;
+    throw new ApiError(0, 'NETWORK');
   }
-
-  return resposta.json();
+  if (resposta.status === 401 && token) {
+    // Uma resposta atrasada da sessão anterior não encerra um novo login.
+    endSession('invalid', token);
+    throw new ApiError(401, 'SESSION_INVALID');
+  }
+  if (!resposta.ok) throw new ApiError(resposta.status, 'HTTP');
+  if (resposta.status === 204) return null;
+  try {
+    return await resposta.json();
+  } catch (error) {
+    if (error.name === 'AbortError') throw error;
+    throw new ApiError(resposta.status, 'INVALID_RESPONSE');
+  }
 }
 
-export async function listarAreas() {
-  return getJson(`${API_URL}/areas`);
+async function requestList(path, options) {
+  const data = await requestJson(path, options);
+  if (!Array.isArray(data) || data.some(item => !item || item.id == null || typeof item.nome !== 'string')) {
+    throw new ApiError(200, 'INVALID_RESPONSE');
+  }
+  return data;
 }
+
+export const listarTermos = (options) => requestList('/termos', options);
+export const buscarTermo = (id, options) => requestJson(`/termos/${encodeURIComponent(id)}`, options);
+export const pesquisarTermo = (q, options) => requestList(`/termos/busca?${new URLSearchParams({ q })}`, options);
+export const listarCategorias = (options) => requestList('/categorias', options);
+export const listarTermosPCategoria = (id, options) => requestJson(`/categorias/${encodeURIComponent(id)}/termos`, options);
+export const listarAreas = (options) => requestList('/areas', options);
+export const cadastrarTermo = (dados, options) => requestJson('/termos', { ...options, authenticated: true, method: 'POST', data: dados });
+export const editarTermo = (id, dados, options) => requestJson(`/termos/${encodeURIComponent(id)}`, { ...options, authenticated: true, method: 'PUT', data: dados });
+
+export const autenticar = (email, senha, options) => requestJson('/auth/login', {
+  ...options, authenticated: false, method: 'POST', data: { email: email.trim(), senha },
+});

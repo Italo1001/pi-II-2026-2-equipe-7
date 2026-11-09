@@ -24,7 +24,7 @@ const illustrations = [
 
 export default function CategoryLibrary({ terms, onSelect }) {
   const categories = [
-    ...new Set(terms.map(term => term.area).filter(Boolean)),
+    ...new Set(terms.map(term => term.category).filter(Boolean)),
   ]
     .sort()
     .map(name => {

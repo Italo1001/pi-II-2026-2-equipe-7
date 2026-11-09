@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import RequestState from '../components/RequestState';
+import { requestMessages } from '../utils/requestMessages';
 import { listarTermos } from '../api/api';
 
 import Header from '../components/Header';
@@ -26,46 +28,32 @@ function adaptarTermo(item) {
 }
 
 export default function Home() {
-  const [terms, setTerms] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [response, setResponse] = useState(null);
+  const [attempt, setAttempt] = useState(0);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
 
   useEffect(() => {
-    let active = true;
-
-    listarTermos()
+    const controller = new AbortController();
+    listarTermos({ signal: controller.signal })
       .then((data) => {
-        if (!Array.isArray(data)) {
-          throw new Error('A API retornou uma lista inválida.');
+        if (!Array.isArray(data) || data.some(item => !item || item.id == null || typeof item.nome !== 'string')) {
+          throw new Error('Resposta inválida do servidor.');
         }
-
-        const adaptedTerms = data
-          .map(adaptarTermo)
-          .sort((a, b) => a.term.localeCompare(b.term, 'pt-BR'));
-
-        if (active) {
-          setTerms(adaptedTerms);
-        }
+        const terms = data.map(adaptarTermo).sort((a, b) => a.term.localeCompare(b.term, 'pt-BR'));
+        if (!controller.signal.aborted) setResponse({ attempt, terms, error: null });
       })
-      .catch(() => {
-        if (active) {
-          setError(
-            'Não foi possível carregar os termos. Verifique o servidor e tente novamente.'
-          );
-        }
-      })
-      .finally(() => {
-        if (active) {
-          setLoading(false);
-        }
+      .catch((error) => {
+        if (!controller.signal.aborted) setResponse({ attempt, terms: [], error });
       });
+    return () => controller.abort();
+  }, [attempt]);
 
-    return () => {
-      active = false;
-    };
-  }, []);
+  const current = response?.attempt === attempt;
+  const loading = !current;
+  const error = current ? response.error : null;
+  const terms = current ? response.terms : [];
+  const retry = () => setAttempt(value => value + 1);
 
   const visibleTerms = category
     ? terms.filter((term) => term.category === category)
@@ -75,20 +63,12 @@ export default function Home() {
     <main className="bg-[#F9F8F6] text-[#1A1C1E]">
       <Header />
 
-      {loading ? (
-        <section className="px-6 pb-20 pt-36" role="status">
-          Carregando termos…
-        </section>
-      ) : error ? (
-        <section className="px-6 pb-20 pt-36" role="alert">
-          <p>{error}</p>
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="mt-4 min-h-12 underline"
-          >
-            Tentar novamente
-          </button>
+      {loading || error || terms.length === 0 ? (
+        <section className="mx-auto min-h-[65vh] max-w-7xl px-6 pb-20 pt-36" aria-busy={loading}>
+          <h1 className="font-serif text-4xl">Dicionário jurídico</h1>
+          <RequestState loading={loading} loadingMessage={requestMessages.loadingTerms}
+            error={error} empty={terms.length === 0} emptyMessage={requestMessages.emptyTerms}
+            onRetry={retry} />
         </section>
       ) : (
         <>
