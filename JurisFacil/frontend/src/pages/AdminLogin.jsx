@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { validateLogin } from '../utils/validateLogin';
 
-import { autenticar } from '../api/api';
+import { realizarLogin } from '../api/api';
 import { startSession, safeAdminDestination } from '../auth/session';
 import useSession from '../auth/useSession';
 import { getRequestMessage, requestMessages } from '../utils/requestMessages';
@@ -37,7 +37,7 @@ export default function AdminLogin() {
     request.current = controller;
     setLoading(true);
     try {
-      const data = await autenticar(form.get('email'), form.get('password'), { signal: controller.signal });
+      const data = await realizarLogin(form.get('email'), form.get('password'), { signal: controller.signal });
       if (controller.signal.aborted) return;
       startSession(data);
       if (passwordRef.current) passwordRef.current.value = '';
@@ -56,6 +56,7 @@ export default function AdminLogin() {
   if (session) return <Navigate to={destination} replace />;
   const notice = reason === 'expired' ? requestMessages.sessionExpired
     : reason === 'invalid' ? requestMessages.sessionInvalid
+    : reason === 'storageUnavailable' ? requestMessages.storageUnavailable
     : reason === 'signedOut' ? requestMessages.signedOut
     : location.state?.from ? requestMessages.loginRequired : '';
 

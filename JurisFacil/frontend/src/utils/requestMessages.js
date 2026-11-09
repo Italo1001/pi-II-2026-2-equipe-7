@@ -10,9 +10,10 @@ export const requestMessages = {
   sessionExpired: 'Sua sessão expirou. Entre novamente para continuar.',
   sessionInvalid: 'Sua sessão não é mais válida. Entre novamente para continuar.',
   loginRequired: 'Entre com sua conta administrativa para continuar.',
+  storageUnavailable: 'Não foi possível acessar o armazenamento da sessão. Verifique as configurações do navegador e tente novamente.',
   signedOut: 'Você saiu da sua conta.',
   signingIn: 'Entrando…',
-  pendingFields: 'Estes campos aguardam implementação e ainda não são salvos. O preenchimento está desabilitado.',
+  pendingFields: 'Estes campos ainda não estão integrados ao salvamento deste formulário. O preenchimento está desabilitado.',
   saved: 'Termo cadastrado com sucesso!',
   missingOptions: 'Cadastre uma área e uma categoria antes de cadastrar um termo.',
   searching: 'Pesquisando…',
@@ -30,6 +31,7 @@ export const requestMessages = {
 };
 
 export function getRequestMessage(error) {
+  if (error?.code === 'STORAGE_UNAVAILABLE') return requestMessages.storageUnavailable;
   if (error?.code === 'SESSION_EXPIRED') return requestMessages.sessionExpired;
   if (error?.code === 'SESSION_INVALID') return requestMessages.sessionInvalid;
   if (error?.code === 'AUTH_REQUIRED') return requestMessages.loginRequired;

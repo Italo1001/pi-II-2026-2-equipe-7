@@ -1,5 +1,12 @@
 package backend.controller;
 
+import java.util.List;
+
+import backend.dto.AreaDireitoComTermosDTO;
+import backend.model.areaDireito;
+import backend.service.AreaDireitoService;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MockMvc;
@@ -8,51 +15,78 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import backend.exception.GlobalExceptionHandler;
-import backend.model.areaDireito;
-import backend.repository.AreaDireitoRepository;
-import java.util.List;
-import org.springframework.data.domain.Sort;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import backend.exception.RecursoNaoEncontradoException;
+import backend.model.Termo;
 
 class AreaDireitoControllerTest {
 
     private MockMvc mockMvc;
-    private AreaDireitoRepository repository;
+    private AreaDireitoService areaDireitoService;
 
     @BeforeEach
     @SuppressWarnings("unused")
     void configurar() {
-        repository = mock(AreaDireitoRepository.class);
-        mockMvc = MockMvcBuilders.standaloneSetup(new AreaDireitoController(repository))
+        areaDireitoService = mock(AreaDireitoService.class);
+        mockMvc = MockMvcBuilders.standaloneSetup(new AreaDireitoController(areaDireitoService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
 
     @Test
-    void listarAreasRetornaIdsENomesDoBanco() throws Exception {
+    void listarAreasRetornaIdsENomesPersistidos() throws Exception {
         areaDireito area = new areaDireito();
-        area.setId(7L);
+        area.setId(4L);
         area.setNome("Direito Civil");
-        when(repository.findAll(Sort.by("nome").ascending())).thenReturn(List.of(area));
+        when(areaDireitoService.listarAreas()).thenReturn(List.of(area));
         mockMvc.perform(get("/areas"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(7))
-                .andExpect(jsonPath("$[0].nome").value("Direito Civil"));
+                .andExpect(content().json("[{\"id\":4,\"nome\":\"Direito Civil\"}]"));
+        verify(areaDireitoService).listarAreas();
     }
 
     @Test
-    void listarAreasSemDadosRetornaListaVazia() throws Exception {
-        when(repository.findAll(Sort.by("nome").ascending())).thenReturn(List.of());
-        mockMvc.perform(get("/areas"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isEmpty());
+    void listarAreasSemRegistrosRetornaListaVazia() throws Exception {
+        when(areaDireitoService.listarAreas()).thenReturn(List.of());
+        mockMvc.perform(get("/areas")).andExpect(status().isOk())
+                .andExpect(content().json("[]"));
     }
 
     @Test
-    void listarTermosPorAreaRetornaNotImplementedEnquantoAcessoNaoDisponivel() throws Exception {
+    void listarTermosPorAreaRetornaAreaETermos() throws Exception {
+        Termo termo = new Termo();
+        termo.setId(8L);
+        termo.setNome("Dano Moral");
+        termo.setSignificado("Lesão a direitos da personalidade.");
+        areaDireito area = new areaDireito();
+        area.setId(1L);
+        area.setNome("Direito Civil");
+        termo.setAreaDireito(area);
+        when(areaDireitoService.listarTermosPorArea(1L))
+                .thenReturn(new AreaDireitoComTermosDTO(1L, "Direito Civil", List.of(termo)));
+
         mockMvc.perform(get("/areas/1/termos"))
-                .andExpect(status().isNotImplemented());
+                .andExpect(status().isOk())
+                .andExpect(content().json("""
+                        {
+                          "id": 1,
+                          "nome": "Direito Civil",
+                          "termos": [{
+                            "id": 8,
+                            "nome": "Dano Moral",
+                            "significado": "Lesão a direitos da personalidade.",
+                            "area": "Direito Civil"
+                          }]
+                        }
+                        """));
+    }
+
+    @Test
+    void listarTermosPorAreaInexistenteRetornaNotFound() throws Exception {
+        when(areaDireitoService.listarTermosPorArea(99L))
+                .thenThrow(new RecursoNaoEncontradoException(
+                        "Área do Direito não encontrada com id 99"));
+
+        mockMvc.perform(get("/areas/99/termos"))
+                .andExpect(status().isNotFound());
     }
 }

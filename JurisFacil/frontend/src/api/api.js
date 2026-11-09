@@ -64,3 +64,5 @@ export const editarTermo = (id, dados, options) => requestJson(`/termos/${encode
 export const autenticar = (email, senha, options) => requestJson('/auth/login', {
   ...options, authenticated: false, method: 'POST', data: { email: email.trim(), senha },
 });
+
+export const realizarLogin = autenticar;
