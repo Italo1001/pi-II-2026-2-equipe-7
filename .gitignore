@@ -1,2 +1,3 @@
 ﻿/JurisFacil/backups/
 *.backup
+/JurisFacil/.env
