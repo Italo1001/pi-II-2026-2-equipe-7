@@ -28,7 +28,7 @@ public class SecurityConfig {
     );
 
     @Value("${app.cors.allowed-origins:}")
-    public void setAllowedOrigins1(String origins) {
+    public void setAllowedOrigins(String origins) {
         if (origins == null || origins.isBlank()) {
             return;
         }
