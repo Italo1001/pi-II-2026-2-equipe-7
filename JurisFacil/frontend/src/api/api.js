@@ -1,6 +1,6 @@
 import { endSession, getAccessToken, getSessionSnapshot } from '../auth/session.js';
 
-const API_URL = '/api';
+const API_URL = 'https://jurisfacil.onrender.com';
 
 export class ApiError extends Error {
   constructor(status, code) {
