@@ -99,8 +99,4 @@ public class SecurityConfig {
 
     }
 
-    void setAllowedOrigins(String httpsjurisfacilexamplecom_httplocalhost51) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
 }
