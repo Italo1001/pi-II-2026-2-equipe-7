@@ -1,16 +1,22 @@
 import { useEffect, useSyncExternalStore } from 'react';
-import { getAccessToken, getSessionSnapshot, subscribeSession } from './session';
+import { clearSession, getToken, readClaims, sessionStatus } from './session';
 
-export default function useSession() {
-  const snapshot = useSyncExternalStore(subscribeSession, getSessionSnapshot, getSessionSnapshot);
+function subscribe(callback) {
+  window.addEventListener('storage', callback);
+  window.addEventListener('jurisfacil-session', callback);
+  return () => {
+    window.removeEventListener('storage', callback);
+    window.removeEventListener('jurisfacil-session', callback);
+  };
+}
+
+export function useSession() {
+  const token = useSyncExternalStore(subscribe, getToken, () => '');
   useEffect(() => {
-    const checkExpiry = () => { getAccessToken(); };
-    window.addEventListener('focus', checkExpiry);
-    document.addEventListener('visibilitychange', checkExpiry);
-    return () => {
-      window.removeEventListener('focus', checkExpiry);
-      document.removeEventListener('visibilitychange', checkExpiry);
-    };
-  }, []);
-  return snapshot;
+    const claims = readClaims(token);
+    if (!claims) return;
+    const timer = setTimeout(clearSession, Math.min(claims.exp * 1000 - Date.now(), 2147483647));
+    return () => clearTimeout(timer);
+  }, [token]);
+  return sessionStatus(token);
 }

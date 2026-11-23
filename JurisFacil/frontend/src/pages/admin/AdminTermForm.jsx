@@ -1,213 +1,120 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import {
-  cadastrarTermo,
-  listarCategorias,
-  listarAreas,
-} from '../../api/api';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { buscarTermo, cadastrarTermo, editarTermo, listarAreas, listarCategorias } from '../../api/api';
 
-import useApiResource from '../../hooks/useApiResource';
-import RequestState from '../../components/RequestState';
-import { getRequestMessage, requestMessages } from '../../utils/requestMessages';
-
-async function loadOptions(options) {
-  const [categorias, areas] = await Promise.all([listarCategorias(options), listarAreas(options)]);
-  return { categorias, areas };
-}
+const inputClass = 'min-h-12 w-full border border-[#D4D1CC] bg-white px-3 disabled:opacity-50';
 
 export default function AdminTermForm() {
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { data, loading: loadingOptions, error, retry } = useApiResource(loadOptions);
-  const categorias = data?.categorias ?? [];
-  const areas = data?.areas ?? [];
-  const [nome, setNome] = useState('');
-  const [tecnica, setTecnica] = useState('');
-  const [area, setArea] = useState('');
-  const [categoriaId, setCategoriaId] = useState('');
-  const missingOptions = !loadingOptions && !error && (!areas.length || !categorias.length);
+  const { id } = useParams();
+  const editing = Boolean(id);
+  const validId = !editing || /^[1-9]\d*$/.test(id);
+  const navigate = useNavigate();
+  const [loaded, setLoaded] = useState(null);
+  const [attempt, setAttempt] = useState(0);
+  const [form, setForm] = useState({ termo: '', significado: '', categoriaId: '', areaId: '' });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
-  async function handleSubmit(event) {
+  useEffect(() => {
+    if (!validId) return;
+    let active = true;
+    Promise.all([listarCategorias(), listarAreas(), editing ? buscarTermo(id) : Promise.resolve(null)])
+      .then(([categorias, areas, termo]) => {
+        if (!Array.isArray(categorias) || !Array.isArray(areas)) throw new Error('O servidor retornou opções inválidas.');
+        if (!active) return;
+        setForm({
+          termo: termo?.nome ?? termo?.termo ?? '',
+          significado: termo?.significado ?? '',
+          categoriaId: String(termo?.categoriaId ?? termo?.categoria?.id ?? ''),
+          areaId: String(termo?.areaId ?? areas.find(area => area.nome === termo?.area)?.id ?? ''),
+        });
+        setLoaded({ id, attempt, categorias, areas });
+      })
+      .catch(failure => {
+        if (active) setLoaded({ id, attempt, error: failure.message });
+      });
+    return () => { active = false; };
+  }, [id, editing, validId, attempt]);
+
+  function update(event) {
+    setForm(previous => ({ ...previous, [event.target.name]: event.target.value }));
+  }
+
+  async function submit(event) {
     event.preventDefault();
-    setMessage('');
-
-    if (!areas.some(item => String(item.id) === area) || !categorias.some(item => String(item.id) === categoriaId) || !nome.trim() || !tecnica.trim()) {
-      setMessage(requestMessages.invalidForm);
+    if (saving) return;
+    setError('');
+    if (!form.termo.trim() || !form.significado.trim()) {
+      setError('Preencha o nome e o significado com texto válido.');
       return;
     }
-
-    setLoading(true);
-
+    if (!loaded.categorias.some(item => String(item.id) === form.categoriaId)
+        || !loaded.areas.some(item => String(item.id) === form.areaId)) {
+      setError('Selecione uma categoria e uma área disponíveis.');
+      return;
+    }
+    setSaving(true);
     try {
-      await cadastrarTermo({
-        termo: nome.trim(),
-        significado: tecnica.trim(),
-        categoriaId: Number(categoriaId),
-        areaId: Number(area),
-      });
-
-      setMessage(requestMessages.saved);
-      setNome('');
-      setTecnica('');
-      setArea('');
-      setCategoriaId('');
-    } catch (error) {
-      setMessage(getRequestMessage(error));
+      const payload = {
+        termo: form.termo.trim(), significado: form.significado.trim(),
+        categoriaId: Number(form.categoriaId), areaId: Number(form.areaId),
+      };
+      if (editing) await editarTermo(id, payload);
+      else await cadastrarTermo(payload);
+      navigate('/admin/previa/termos', { replace: true, state: { message: editing ? 'Termo atualizado com sucesso.' : 'Termo cadastrado com sucesso.' } });
+    } catch (failure) {
+      if (failure.status === 403) navigate('/acesso-negado');
+      else setError(failure.message || 'Não foi possível salvar o termo.');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   }
 
-  return (
-    <>
-      <Link
-        to="/admin/previa/termos"
-        className="inline-flex min-h-10 items-center text-sm underline"
-      >
-        Voltar aos termos
-      </Link>
+  const ready = loaded?.id === id && loaded?.attempt === attempt;
+  const unavailable = ready && !loaded.error && (!loaded.categorias.length || !loaded.areas.length);
 
-      <h1 className="mt-4 font-serif text-4xl sm:text-5xl">
-        Novo termo
-      </h1>
-
-      <RequestState loading={loadingOptions} loadingMessage={requestMessages.loadingData} error={error} onRetry={retry}
-        empty={missingOptions} emptyMessage={requestMessages.missingOptions} />
-      <form
-        className="mt-8 max-w-3xl space-y-6"
-        onSubmit={handleSubmit}
-      >
-        <fieldset disabled={loading || loadingOptions || Boolean(error) || missingOptions} className="space-y-6">
+  return <>
+    <Link to="/admin/previa/termos" className="inline-flex min-h-10 items-center text-sm underline">Voltar aos termos</Link>
+    <h1 className="mt-4 font-serif text-4xl sm:text-5xl">{editing ? 'Editar termo' : 'Novo termo'}</h1>
+    <p className="mt-4 max-w-2xl leading-7 text-[#55585B]">Informe o nome, o significado e a classificação do termo.</p>
+    {!validId ? <p role="alert" className="mt-8">Identificador de termo inválido.</p>
+      : !ready ? <p role="status" className="mt-8">Carregando formulário...</p>
+      : loaded.error ? <section className="mt-8 border border-[#D4D1CC] p-6">
+        <p role="alert">{loaded.error}</p>
+        <button className="mt-4 min-h-12 underline" onClick={() => setAttempt(value => value + 1)}>Tentar novamente</button>
+      </section>
+      : <form onSubmit={submit} className="mt-8 max-w-3xl space-y-6">
         <div>
-          <label htmlFor="term-nome" className="mb-2 block text-sm font-semibold">
-            Nome do termo
-          </label>
-          <input
-            id="term-nome"
-            name="nome"
-            value={nome}
-            onChange={event => setNome(event.target.value)}
-            maxLength={150}
-            required
-            placeholder="Ex.: Dano moral"
-            className="min-h-12 w-full border border-[#D4D1CC] bg-white px-3"
-          />
+          <label htmlFor="term-name" className="mb-2 block text-sm font-semibold">Nome do termo</label>
+          <input id="term-name" name="termo" value={form.termo} onChange={update} required maxLength={150} disabled={saving} className={inputClass} />
         </div>
-
         <div>
-          <label htmlFor="term-tecnica" className="mb-2 block text-sm font-semibold">
-            Definição técnica
-          </label>
-          <textarea
-            id="term-tecnica"
-            name="tecnica"
-            value={tecnica}
-            onChange={event => setTecnica(event.target.value)}
-            required
-            rows={3}
-            placeholder="Descreva o significado jurídico."
-            className="w-full border border-[#D4D1CC] bg-white p-3"
-          />
+          <label htmlFor="term-definition" className="mb-2 block text-sm font-semibold">Significado</label>
+          <textarea id="term-definition" name="significado" value={form.significado} onChange={update} required rows={5} disabled={saving} className="w-full border border-[#D4D1CC] bg-white p-3" />
         </div>
-
-        <fieldset disabled aria-describedby="pending-fields-help" className="space-y-5 border border-[#D4D1CC] p-5">
-          <legend className="px-2 text-sm font-semibold">Informações complementares</legend>
-          <p id="pending-fields-help" className="text-sm leading-6 text-[#55585B]">{requestMessages.pendingFields}</p>
-          <div>
-            <label htmlFor="term-simples" className="mb-2 block text-sm font-semibold">Explicação simples</label>
-            <textarea id="term-simples" rows={3} className="w-full border border-[#D4D1CC] bg-[#EEEAE4] p-3" />
-          </div>
-          <div>
-            <label htmlFor="term-simplificada" className="mb-2 block text-sm font-semibold">Explicação simplificada</label>
-            <textarea id="term-simplificada" rows={3} className="w-full border border-[#D4D1CC] bg-[#EEEAE4] p-3" />
-          </div>
-          <div>
-            <label htmlFor="term-exemplo" className="mb-2 block text-sm font-semibold">Exemplo de uso</label>
-            <textarea id="term-exemplo" rows={3} className="w-full border border-[#D4D1CC] bg-[#EEEAE4] p-3" />
-          </div>
-          <div>
-            <label htmlFor="term-fonte" className="mb-2 block text-sm font-semibold">Fonte ou referência</label>
-            <input id="term-fonte" type="text" className="min-h-12 w-full border border-[#D4D1CC] bg-[#EEEAE4] px-3" />
-          </div>
-        </fieldset>
-
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
-            <label htmlFor="term-area" className="mb-2 block text-sm font-semibold">
-              Área do Direito
-            </label>
-            <select
-              id="term-area"
-              value={area}
-              onChange={event => setArea(event.target.value)}
-              required
-              className="min-h-12 w-full border border-[#D4D1CC] bg-white px-3"
-            >
-              <option value="">Selecione uma área</option>
-              {areas.map(item => (
-                <option key={item.id} value={item.id}>
-                  {item.nome}
-                </option>
-              ))}
+            <label htmlFor="term-category" className="mb-2 block text-sm font-semibold">Categoria</label>
+            <select id="term-category" name="categoriaId" value={form.categoriaId} onChange={update} required disabled={saving || unavailable} className={inputClass}>
+              <option value="">Selecione uma categoria</option>
+              {loaded.categorias.map(item => <option key={item.id} value={item.id}>{item.nome}</option>)}
             </select>
           </div>
-
           <div>
-            <label htmlFor="term-category" className="mb-2 block text-sm font-semibold">
-              Categoria
-            </label>
-            <select
-              id="term-category"
-              value={categoriaId}
-              onChange={event => setCategoriaId(event.target.value)}
-              required
-              disabled={loadingOptions || categorias.length === 0}
-              className="min-h-12 w-full border border-[#D4D1CC] bg-white px-3"
-            >
-              <option value="">
-                {loadingOptions
-                  ? 'Carregando categorias...'
-                  : categorias.length === 0
-                    ? 'Nenhuma categoria disponível'
-                    : 'Selecione uma categoria'}
-              </option>
-
-              {categorias.map(categoria => (
-                <option key={categoria.id} value={categoria.id}>
-                  {categoria.nome}
-                </option>
-              ))}
+            <label htmlFor="term-area" className="mb-2 block text-sm font-semibold">Área do Direito</label>
+            <select id="term-area" name="areaId" value={form.areaId} onChange={update} required disabled={saving || unavailable} className={inputClass}>
+              <option value="">Selecione uma área</option>
+              {loaded.areas.map(item => <option key={item.id} value={item.id}>{item.nome}</option>)}
             </select>
           </div>
         </div>
-
-        </fieldset>
-        {message && (
-          <p
-            role={message === requestMessages.saved ? "status" : "alert"}
-            className="border-l-2 border-[#8C7356] bg-[#EEEAE4] p-4 text-sm leading-6"
-          >
-            {message}
-          </p>
-        )}
-
+        {editing && !form.categoriaId && <p className="text-sm text-[#55585B]">Confira a categoria antes de salvar: o detalhe recebido não informa essa associação.</p>}
+        {unavailable && <p role="alert">É necessário ter categorias e áreas disponíveis para salvar um termo.</p>}
+        {error && <p role="alert" className="border-l-2 border-red-800 bg-red-50 p-4">{error}</p>}
         <div className="flex flex-wrap gap-3">
-          <button
-            type="submit"
-            disabled={loading || loadingOptions || Boolean(error) || missingOptions}
-            className="min-h-12 bg-[#1A1C1E] px-5 text-white disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {loading ? 'Salvando...' : 'Salvar termo'}
-          </button>
-
-          <Link
-            to="/admin/previa/termos"
-            className="inline-flex min-h-12 items-center border border-[#D4D1CC] px-5"
-          >
-            Cancelar
-          </Link>
+          <button type="submit" disabled={saving || unavailable} className="min-h-12 bg-[#1A1C1E] px-5 text-white disabled:opacity-50">{saving ? 'Salvando...' : editing ? 'Salvar alterações' : 'Cadastrar termo'}</button>
+          <Link to="/admin/previa/termos" className="inline-flex min-h-12 items-center border border-[#D4D1CC] px-5">Cancelar</Link>
         </div>
-      </form>
-    </>
-  );
+      </form>}
+  </>;
 }
