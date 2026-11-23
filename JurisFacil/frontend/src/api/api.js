@@ -1,49 +1,68 @@
-import { getToken, saveSession, sessionStatus } from '../auth/session.js';
+import { endSession, getAccessToken, getSessionSnapshot } from '../auth/session.js';
 
-const API_URL = '/api';
+const API_URL = 'https://jurisfacil.onrender.com';
 
-async function request(path, { method = 'GET', body, protectedRoute = false } = {}) {
-  const headers = {};
-  if (body !== undefined) headers['Content-Type'] = 'application/json';
-  if (protectedRoute) {
-    const token = getToken();
-    if (sessionStatus(token) !== 'admin') {
-      const error = new Error('Você precisa de uma sessão de administrador válida.');
-      error.status = sessionStatus(token) === 'forbidden' ? 403 : 401;
-      throw error;
-    }
-    headers.Authorization = `Bearer ${token}`;
+export class ApiError extends Error {
+  constructor(status, code) {
+    super(`Falha na API: ${code} (${status})`);
+    this.name = 'ApiError';
+    this.status = status;
+    this.code = code;
   }
-  const response = await fetch(`${API_URL}${path}`, {
-    method, headers, ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-  });
-  const data = response.status === 204 ? null : await response.json().catch(() => null);
-  if (!response.ok) {
-    const messages = {
-      400: 'Verifique os dados informados.',
-      401: 'Sua sessão não é válida. Entre novamente.',
-      403: 'Seu perfil não tem permissão para esta ação.',
-      404: 'O recurso solicitado não foi encontrado.',
-      501: 'Esta funcionalidade ainda não está disponível no servidor.',
-    };
-    const error = new Error(messages[response.status] || 'Não foi possível concluir a solicitação. Tente novamente.');
-    error.status = response.status;
-    throw error;
+}
+
+async function requestJson(path, { signal, method = 'GET', data, authenticated = false } = {}) {
+  const token = authenticated ? getAccessToken() : null;
+  if (authenticated && !token) {
+    throw new ApiError(401, getSessionSnapshot().reason === 'expired' ? 'SESSION_EXPIRED' : 'AUTH_REQUIRED');
+  }
+  const headers = { Accept: 'application/json' };
+  if (data !== undefined) headers['Content-Type'] = 'application/json';
+  if (token) headers.Authorization = `Bearer ${token}`;
+  let resposta;
+  try {
+    resposta = await fetch(`${API_URL}${path}`, {
+      signal, method, headers,
+      body: data === undefined ? undefined : JSON.stringify(data),
+    });
+  } catch (error) {
+    if (error.name === 'AbortError') throw error;
+    throw new ApiError(0, 'NETWORK');
+  }
+  if (resposta.status === 401 && token) {
+    // Uma resposta atrasada da sessão anterior não encerra um novo login.
+    endSession('invalid', token);
+    throw new ApiError(401, 'SESSION_INVALID');
+  }
+  if (!resposta.ok) throw new ApiError(resposta.status, 'HTTP');
+  if (resposta.status === 204) return null;
+  try {
+    return await resposta.json();
+  } catch (error) {
+    if (error.name === 'AbortError') throw error;
+    throw new ApiError(resposta.status, 'INVALID_RESPONSE');
+  }
+}
+
+async function requestList(path, options) {
+  const data = await requestJson(path, options);
+  if (!Array.isArray(data) || data.some(item => !item || item.id == null || typeof item.nome !== 'string')) {
+    throw new ApiError(200, 'INVALID_RESPONSE');
   }
   return data;
 }
 
-export async function realizarLogin(email, senha) {
-  const data = await request('/auth/login', { method: 'POST', body: { email, senha } });
-  saveSession(data || {});
-  return data;
-}
+export const listarTermos = (options) => requestList('/termos', options);
+export const buscarTermo = (id, options) => requestJson(`/termos/${encodeURIComponent(id)}`, options);
+export const pesquisarTermo = (q, options) => requestList(`/termos/busca?${new URLSearchParams({ q })}`, options);
+export const listarCategorias = (options) => requestList('/categorias', options);
+export const listarTermosPCategoria = (id, options) => requestJson(`/categorias/${encodeURIComponent(id)}/termos`, options);
+export const listarAreas = (options) => requestList('/areas', options);
+export const cadastrarTermo = (dados, options) => requestJson('/termos', { ...options, authenticated: true, method: 'POST', data: dados });
+export const editarTermo = (id, dados, options) => requestJson(`/termos/${encodeURIComponent(id)}`, { ...options, authenticated: true, method: 'PUT', data: dados });
 
-export const listarTermos = () => request('/termos');
-export const buscarTermo = id => request(`/termos/${encodeURIComponent(id)}`);
-export const pesquisarTermo = q => request(`/termos/busca?${new URLSearchParams({ q })}`);
-export const listarCategorias = () => request('/categorias');
-export const listarTermosPCategoria = id => request(`/categorias/${encodeURIComponent(id)}/termos`);
-export const listarAreas = () => request('/areas');
-export const cadastrarTermo = body => request('/termos', { method: 'POST', body, protectedRoute: true });
-export const editarTermo = (id, body) => request(`/termos/${encodeURIComponent(id)}`, { method: 'PUT', body, protectedRoute: true });
+export const autenticar = (email, senha, options) => requestJson('/auth/login', {
+  ...options, authenticated: false, method: 'POST', data: { email: email.trim(), senha },
+});
+
+export const realizarLogin = autenticar;
