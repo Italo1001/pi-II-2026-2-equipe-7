@@ -15,9 +15,9 @@ async function loadOverview(options) {
 export default function AdminOverview() {
   const { data, loading, error, retry } = useApiResource(loadOverview);
   const stats = [
-    ['Termos', termos.length, BookOpen],
-    ['Categorias', categorias.length, Layers],
-    ['Exemplos', exemplos, FileText],
+    ['Termos', data?.termos.length ?? 0, BookOpen],
+    ['Áreas', data?.areas.length ?? 0, Layers],
+    ['Categorias', data?.categorias.length ?? 0, FileText],
   ];
 
   return (
