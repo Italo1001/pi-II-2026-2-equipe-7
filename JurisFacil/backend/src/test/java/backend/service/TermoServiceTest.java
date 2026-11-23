@@ -178,4 +178,51 @@ class TermoServiceTest {
         verify(exemploRepository, never()).save(any(Exemplo.class));
     }
 
+    @Test
+    void atualizarExemploSalvaTextoApenasQuandoPertenceAoTermo() throws Exception {
+        Exemplo existente = mock(Exemplo.class);
+        Exemplo atualizado = mock(Exemplo.class);
+        when(termoRepository.findById(10L)).thenReturn(Optional.of(new Termo()));
+        when(exemploRepository.findByIdAndTermo_Id(25L, 10L)).thenReturn(Optional.of(existente));
+        when(exemploRepository.save(existente)).thenReturn(atualizado);
+        when(atualizado.getId()).thenReturn(25L);
+        when(atualizado.getTexto()).thenReturn("Texto atualizado.");
+
+        ExemploResponse resposta = termoService.atualizarExemplo(
+                10L, 25L, new ExemploRequest(" Texto atualizado. "));
+
+        verify(existente).setTexto("Texto atualizado.");
+        verify(exemploRepository).findByIdAndTermo_Id(25L, 10L);
+        assertEquals(25L, resposta.id());
+        assertEquals(10L, resposta.termoId());
+        assertEquals("Texto atualizado.", resposta.texto());
+    }
+
+    @Test
+    void atualizarExemploDeOutroTermoRetornaNaoEncontrado() throws Exception {
+        when(termoRepository.findById(10L)).thenReturn(Optional.of(new Termo()));
+        when(exemploRepository.findByIdAndTermo_Id(25L, 10L)).thenReturn(Optional.empty());
+
+        RecursoNaoEncontradoException excecao = assertThrows(
+                RecursoNaoEncontradoException.class,
+                () -> termoService.atualizarExemplo(
+                        10L, 25L, new ExemploRequest("Texto atualizado.")));
+
+        assertEquals("Exemplo não encontrado para o termo informado", excecao.getMessage());
+        verify(exemploRepository, never()).save(any(Exemplo.class));
+    }
+
+    @Test
+    void atualizarExemploDeTermoInexistenteRetornaNaoEncontradoSemBuscarExemplo() {
+        when(termoRepository.findById(99L)).thenReturn(Optional.empty());
+
+        RecursoNaoEncontradoException excecao = assertThrows(
+                RecursoNaoEncontradoException.class,
+                () -> termoService.atualizarExemplo(
+                        99L, 25L, new ExemploRequest("Texto atualizado.")));
+
+        assertEquals("Termo não encontrado com id 99", excecao.getMessage());
+        verifyNoInteractions(exemploRepository);
+    }
+
 }

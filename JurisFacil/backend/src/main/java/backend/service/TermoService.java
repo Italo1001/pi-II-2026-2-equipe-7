@@ -100,6 +100,19 @@ public class TermoService {
         return new ExemploResponse(salvo.getId(), termo.getId(), salvo.getTexto());
     }
 
+    @Transactional
+    public ExemploResponse atualizarExemplo(Long termoId, Long exemploId, ExemploRequest request)
+            throws RecursoNaoEncontradoException {
+        buscarPorId(termoId);
+        Exemplo exemplo = exemploRepository.findByIdAndTermo_Id(exemploId, termoId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Exemplo não encontrado para o termo informado"));
+
+        exemplo.setTexto(request.texto().trim());
+        Exemplo atualizado = exemploRepository.save(exemplo);
+        return new ExemploResponse(atualizado.getId(), termoId, atualizado.getTexto());
+    }
+
     private Categoria buscarCategoria(Long id) throws RecursoNaoEncontradoException {
         return categoriaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException(

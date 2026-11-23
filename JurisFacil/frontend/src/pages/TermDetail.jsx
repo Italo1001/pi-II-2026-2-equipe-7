@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
+import RequestState from '../components/RequestState';
+import { requestMessages } from '../utils/requestMessages';
 import { buscarTermo } from '../api/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -16,15 +18,15 @@ export default function TermDetail() {
   useEffect(() => {
     if (!validId) return;
 
-    let active = true;
+    const controller = new AbortController();
 
-    buscarTermo(id)
+    buscarTermo(id, { signal: controller.signal })
       .then((data) => {
         if (!data || data.id == null || typeof data.nome !== 'string') {
           throw new Error('Resposta inválida do servidor.');
         }
 
-        if (active) {
+        if (!controller.signal.aborted) {
           setResponse({
             id,
             attempt,
@@ -34,7 +36,7 @@ export default function TermDetail() {
         }
       })
       .catch((error) => {
-        if (active) {
+        if (!controller.signal.aborted) {
           setResponse({
             id,
             attempt,
@@ -45,7 +47,7 @@ export default function TermDetail() {
       });
 
     return () => {
-      active = false;
+      controller.abort();
     };
   }, [id, attempt, validId]);
 
@@ -71,32 +73,12 @@ export default function TermDetail() {
           Voltar ao dicionário
         </Link>
 
-        {loading && (
-          <p role="status" className="mt-10">
-            Carregando termo…
-          </p>
-        )}
-
-        {notFound && (
-          <h1 className="mt-12 font-serif text-4xl">
-            Termo não encontrado.
-          </h1>
-        )}
-
-        {!notFound && error && (
-          <div role="alert" className="mt-10">
-            <p>
-              Não foi possível carregar o termo.
-              Verifique a conexão com o servidor.
-            </p>
-
-            <button
-              type="button"
-              onClick={() => setAttempt((value) => value + 1)}
-              className="mt-4 min-h-12 underline"
-            >
-              Tentar novamente
-            </button>
+        {notFound ? (
+          <h1 className="mt-12 font-serif text-4xl">{requestMessages.notFound}</h1>
+        ) : (
+          <div className="mt-10" aria-busy={loading}>
+            <RequestState loading={loading} loadingMessage={requestMessages.loadingTerm}
+              error={error} onRetry={() => setAttempt(value => value + 1)} />
           </div>
         )}
 

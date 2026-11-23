@@ -1,9 +1,7 @@
-
-import { useEffect, useState } from 'react';
-import {
-  listarTermos,
-  listarCategorias,
-} from '../../api/api';
+import { listarAreas, listarCategorias } from '../../api/api';
+import useApiResource from '../../hooks/useApiResource';
+import RequestState from '../../components/RequestState';
+import { requestMessages } from '../../utils/requestMessages';
 
 export default function AdminTaxonomy({ type }) {
   const isArea = type === 'areas';

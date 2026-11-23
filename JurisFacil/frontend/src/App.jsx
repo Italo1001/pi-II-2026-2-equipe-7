@@ -13,6 +13,7 @@ import AdminLogin from './pages/AdminLogin.jsx';
 import Home from './pages/Home';
 import TermDetail from './pages/TermDetail.jsx';
 import TesteBackend from './pages/testebackend.jsx';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
   const { pathname } = useLocation();

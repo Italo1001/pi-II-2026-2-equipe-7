@@ -1,6 +1,7 @@
 package backend.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,6 +13,8 @@ import backend.model.Exemplo;
 public interface ExemploRepository extends JpaRepository<Exemplo, Long> {
 
     List<Exemplo> findByTermo_Id(Long termoId);
+
+    Optional<Exemplo> findByIdAndTermo_Id(Long id, Long termoId);
 
     @Modifying
     @Query("DELETE FROM Exemplo exemplo WHERE exemplo.termo.id = :termoId")

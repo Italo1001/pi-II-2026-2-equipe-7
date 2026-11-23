@@ -24,7 +24,7 @@ export default function AdminLayout() {
         </NavLink>)}
       </nav>
       <Link to="/admin/previa/termos/novo" className="mt-6 flex min-h-12 items-center justify-center gap-2 border border-[#8C7356] px-4 text-sm"><Plus size={17} />Novo termo</Link>
-      <Link to="/admin/login" className="mt-8 flex min-h-12 items-center gap-2 text-sm text-[#55585B]"><ArrowLeft size={16} />Voltar ao login</Link>
+      <button type="button" onClick={logout} className="mt-8 flex min-h-12 items-center gap-2 text-sm text-[#55585B]"><ArrowLeft size={16} />Sair da conta</button>
     </aside>
     <div className="min-w-0">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[#D4D1CC] px-6 py-5 lg:px-10">
