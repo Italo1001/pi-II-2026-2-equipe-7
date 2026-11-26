@@ -5,6 +5,14 @@ import RequestState from './RequestState';
 import { requestMessages } from '../utils/requestMessages';
 import { pesquisarTermo } from '../api/api';
 
+function normalizar(texto) {
+  return String(texto ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('pt-BR')
+    .trim();
+}
+
 export default function HeaderSearch() {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -40,12 +48,23 @@ export default function HeaderSearch() {
         }
 
         if (!controller.signal.aborted) {
-          setResponse({
-            search,
-            attempt,
-            results: data,
-            error: '',
-          });
+          const prefixo = normalizar(search);
+          const resultados = data
+            .filter(term => normalizar(term.nome).startsWith(prefixo))
+            .sort((a, b) =>
+              a.nome.localeCompare(b.nome, 'pt-BR', {
+                sensitivity: 'base',
+              })
+            );
+
+          if (!controller.signal.aborted) {
+            setResponse({
+              search,
+              attempt,
+              results: resultados,
+              error: '',
+            });
+          }
         }
       } catch (error) {
         if (!controller.signal.aborted) {
@@ -122,7 +141,7 @@ export default function HeaderSearch() {
         <input
           ref={input}
           id={id}
-          type="search"
+          type="text"
           value={query}
           autoComplete="off"
           placeholder="Pesquisar termo…"

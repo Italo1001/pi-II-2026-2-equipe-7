@@ -4,24 +4,79 @@ import useApiResource from '../../hooks/useApiResource';
 import RequestState from '../../components/RequestState';
 import { requestMessages } from '../../utils/requestMessages';
 import { listarTermos } from '../../api/api';
+import { Search } from 'lucide-react';
+
+function normalizar(texto) {
+  return String(texto ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('pt-BR')
+    .trim();
+}
 
 export default function AdminTerms() {
   const [query, setQuery] = useState('');
   const { data, loading, error, retry } = useApiResource(listarTermos);
   const allTerms = data ?? [];
 
-  const terms = allTerms.filter(term =>
-    `${term.nome ?? term.termo ?? ''} ${term.significado ?? term.definicao ?? ''}`
-      .toLowerCase()
-      .includes(query.toLowerCase())
-  );
+  const prefixo = normalizar(query);
+  const terms = allTerms
+    .filter(term => {
+      const nome = normalizar(term.nome ?? term.termo);
+      const significado = normalizar(
+        term.significado ?? term.definicao
+      );
+
+      return (
+        !prefixo ||
+        nome.startsWith(prefixo) ||
+        significado.startsWith(prefixo)
+      );
+    })
+    .sort((a, b) =>
+      (a.nome ?? a.termo ?? '').localeCompare(
+        b.nome ?? b.termo ?? '',
+        'pt-BR',
+        { sensitivity: 'base' }
+      )
+    );
+
   return <>
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div><h1 className="font-serif text-4xl sm:text-5xl">Termos</h1></div>
       <Link to="/admin/previa/termos/novo" className="inline-flex min-h-12 items-center bg-[#1A1C1E] px-5 text-white">Novo termo</Link>
     </div>
     <label htmlFor="admin-term-search" className="mb-2 mt-8 block text-sm font-semibold">Pesquisar na lista</label>
-    <input id="admin-term-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Nome ou explicação do termo" className="min-h-12 w-full max-w-lg border border-[#D4D1CC] bg-white px-4" />
+
+    <form
+      role="search"
+      onSubmit={event => {
+        event.preventDefault();
+        setQuery(query.trim());
+      }}
+      className="mt-8 flex min-h-12 w-full max-w-lg border border-[#D4D1CC] bg-white focus-within:border-[#8C7356]"
+    >
+      <label htmlFor="admin-term-search" className="sr-only">
+        Pesquisar termos
+      </label>
+
+      <input
+        id="admin-term-search"
+        type="text"
+        value={query}
+        onChange={event => setQuery(event.target.value)}
+        placeholder="Nome ou explicação do termo"
+        className="min-w-0 flex-1 bg-transparent px-4 outline-none"
+      />
+
+      <button
+        type="submit"
+        aria-label="Pesquisar termos"
+        className="grid min-w-12 place-items-center border-l border-[#D4D1CC] hover:bg-[#EEEAE4]"
+      >
+        <Search size={18} aria-hidden="true" />
+      </button>
+    </form>
     {loading || error ? (
       <RequestState loading={loading} loadingMessage={requestMessages.loadingTerms} error={error} onRetry={retry} />
     ) : (
